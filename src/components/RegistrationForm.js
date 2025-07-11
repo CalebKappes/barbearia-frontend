@@ -1,19 +1,30 @@
 // src/components/RegistrationForm.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-// Recebe uma função para voltar para a tela de login
 function RegistrationForm({ onNavigateToLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [nome, setNome] = useState('');
   const [celular, setCelular] = useState('');
-  const [mensagem, setMensagem] = useState('');
+  
+  // O estado da mensagem já existia, mas vamos garantir que ele é usado corretamente
+  const [mensagem, setMensagem] = useState({ texto: '', tipo: '' });
+
+  // Efeito para limpar a mensagem
+  useEffect(() => {
+    if (mensagem.texto) {
+      const timer = setTimeout(() => {
+        setMensagem({ texto: '', tipo: '' });
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [mensagem]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setMensagem(''); // Limpa mensagens antigas
+    setMensagem({ texto: '', tipo: '' });
 
     const dadosCadastro = { username, password, email, nome, celular };
 
@@ -22,25 +33,26 @@ function RegistrationForm({ onNavigateToLogin }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(dadosCadastro),
     })
-    .then(response => {
+    .then(async response => { // Tornamos a função async para ler o JSON do erro
       if (response.ok) {
-        alert('Cadastro realizado com sucesso! Por favor, faça o login.');
-        onNavigateToLogin(); // Navega de volta para o login
+        // Trocamos o alert() por uma mensagem de sucesso
+        setMensagem({ texto: 'Cadastro realizado com sucesso! Redirecionando para o login...', tipo: 'sucesso' });
+        // Aguarda um pouco antes de navegar para o usuário poder ler a mensagem
+        setTimeout(() => {
+          onNavigateToLogin();
+        }, 2000);
       } else {
-        // Se houver erro, mostra a mensagem do backend
-        response.json().then(data => {
-            // Concatena os erros para mostrar ao usuário
-            let errorString = '';
-            for (const key in data) {
-                errorString += `${key}: ${data[key].join(', ')}\n`;
-            }
-            setMensagem(errorString || 'Ocorreu um erro no cadastro.');
-        });
+        const data = await response.json();
+        let errorString = '';
+        for (const key in data) {
+            errorString += `${key}: ${data[key].join(', ')}\n`;
+        }
+        setMensagem({ texto: errorString || 'Ocorreu um erro no cadastro.', tipo: 'erro' });
       }
     })
     .catch(error => {
       console.error('Erro no cadastro:', error);
-      setMensagem('Não foi possível conectar ao servidor.');
+      setMensagem({ texto: 'Não foi possível conectar ao servidor.', tipo: 'erro' });
     });
   };
 
@@ -49,8 +61,12 @@ function RegistrationForm({ onNavigateToLogin }) {
       <header className="App-header">
         <h1>Crie sua Conta</h1>
         
-        {/* Mostra mensagens de erro do servidor */}
-        {mensagem && <pre className="mensagem erro">{mensagem}</pre>}
+        {/* O <pre> ajuda a formatar erros de múltiplas linhas */}
+        {mensagem.texto && (
+          <div className={`mensagem ${mensagem.tipo}`}>
+            <pre>{mensagem.texto}</pre>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="login-form">
           <input type="text" placeholder="Nome Completo" value={nome} onChange={(e) => setNome(e.target.value)} required />
@@ -60,6 +76,7 @@ function RegistrationForm({ onNavigateToLogin }) {
           <input type="password" placeholder="Senha" value={password} onChange={(e) => setPassword(e.target.value)} required />
           <button type="submit">Cadastrar</button>
         </form>
+
         <button onClick={onNavigateToLogin} className="link-botao">
           Já tem uma conta? Faça o login
         </button>
