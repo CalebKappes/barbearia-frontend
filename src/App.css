@@ -116,10 +116,6 @@ button:not(:disabled):hover {
 .login-form input {
   width: 100%;
 }
-/* src/App.css */
-/* ... (todo o CSS que já tínhamos antes) ... */
-
-/* ### NOVOS ESTILOS PARA AS MENSAGENS ### */
 
 /* Estilo base da caixa de mensagem */
 .mensagem {
@@ -142,5 +138,20 @@ button:not(:disabled):hover {
 /* Cor de fundo para mensagens de erro */
 .mensagem.erro {
   background-color: #e44c65;
+  color: white;
+}
+
+/* ### NOVO ESTILO PARA O LINK DE CADASTRO ### */
+.link-botao {
+  background: none;
+  border: none;
+  color: #61dafb; /* Azul React */
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 1rem;
+  font-size: 0.9rem;
+}
+
+.link-botao:hover {
   color: white;
 }

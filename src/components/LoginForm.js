@@ -2,14 +2,14 @@
 
 import React, { useState } from 'react';
 
-// Recebemos uma função 'onLoginSuccess' do componente pai (App.js)
-function LoginForm({ onLoginSuccess }) {
+// MUDANÇA 1: Adicionamos 'onNavigateToRegister' como um novo "parâmetro"
+function LoginForm({ onLoginSuccess, onNavigateToRegister }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = (e) => {
     e.preventDefault();
-      fetch(`${process.env.REACT_APP_API_URL}/api/token/`, {
+    fetch(`${process.env.REACT_APP_API_URL}/api/token/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
@@ -17,8 +17,6 @@ function LoginForm({ onLoginSuccess }) {
     .then(response => response.json())
     .then(data => {
       if (data.access) {
-        // Se o login for bem-sucedido, chamamos a função do pai
-        // para avisá-lo e passar o token.
         onLoginSuccess(data.access);
       } else {
         alert('Nome de usuário ou senha inválidos.');
@@ -46,6 +44,12 @@ function LoginForm({ onLoginSuccess }) {
           />
           <button type="submit">Entrar</button>
         </form>
+
+        {/* MUDANÇA 2: Adicionamos este botão/link */}
+        <button onClick={onNavigateToRegister} className="link-botao">
+          Não tem uma conta? Cadastre-se
+        </button>
+        
       </header>
     </div>
   );
