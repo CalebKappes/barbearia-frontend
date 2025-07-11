@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 
 function Scheduler({ token, onLogout }) {
-  // --- ESTADO DO COMPONENTE ---
   const [servicos, setServicos] = useState([]);
   const [profissionais, setProfissionais] = useState([]);
   const [horariosDisponiveis, setHorariosDisponiveis] = useState([]);
@@ -11,47 +10,41 @@ function Scheduler({ token, onLogout }) {
   const [profissionalSelecionado, setProfissionalSelecionado] = useState('');
   const [dataSelecionada, setDataSelecionada] = useState('');
   const [carregando, setCarregando] = useState(false);
-  
-  // ### NOVO ESTADO PARA MENSAGENS ###
-  const [mensagem, setMensagem] = useState({ texto: '', tipo: '' }); // tipo pode ser 'sucesso' ou 'erro'
+  const [mensagem, setMensagem] = useState({ texto: '', tipo: '' });
 
-  // --- EFEITOS ---
   useEffect(() => {
-    // ... (este useEffect para buscar dados iniciais continua o mesmo)
     if (token) {
-      fetch('http://localhost:8000/api/servicos/')
+      // CORRIGIDO AQUI
+      fetch(`${process.env.REACT_APP_API_URL}/api/servicos/`)
         .then(response => response.json())
-        .then(data => setServicos(data));
+        .then(data => setServicos(data))
+        .catch(error => console.error('Erro ao buscar serviços:', error));
 
-      fetch('http://localhost:8000/api/profissionais/')
+      // CORRIGIDO AQUI
+      fetch(`${process.env.REACT_APP_API_URL}/api/profissionais/`)
         .then(response => response.json())
-        .then(data => setProfissionais(data));
+        .then(data => setProfissionais(data))
+        .catch(error => console.error('Erro ao buscar profissionais:', error));
     }
   }, [token]);
 
-  // ### NOVO EFEITO PARA LIMPAR A MENSAGEM ###
   useEffect(() => {
-    // Se uma mensagem for definida, cria um "timer" para limpá-la após 5 segundos
     if (mensagem.texto) {
       const timer = setTimeout(() => {
         setMensagem({ texto: '', tipo: '' });
       }, 5000);
-      // Limpa o timer se o componente for desmontado
       return () => clearTimeout(timer);
     }
   }, [mensagem]);
 
-
-  // --- FUNÇÕES DE LÓGICA (MODIFICADAS) ---
   const handleVerificarDisponibilidade = () => {
     if (!servicoSelecionado || !profissionalSelecionado || !dataSelecionada) {
-      // Substituímos o alert() por setMensagem()
       setMensagem({ texto: 'Por favor, selecione um serviço, um profissional e uma data.', tipo: 'erro' });
       return;
     }
     setCarregando(true);
     setHorariosDisponiveis([]);
-    const url = `http://localhost:8000/api/profissionais/${profissionalSelecionado}/horarios_disponiveis/?data=${dataSelecionada}&servico_id=${servicoSelecionado}`;
+    const url = `${process.env.REACT_APP_API_URL}/api/profissionais/${profissionalSelecionado}/horarios_disponiveis/?data=${dataSelecionada}&servico_id=${servicoSelecionado}`;
     fetch(url)
       .then(response => response.json())
       .then(data => {
@@ -61,7 +54,6 @@ function Scheduler({ token, onLogout }) {
   };
 
   const handleAgendarHorario = (horario) => {
-    // O window.confirm por enquanto pode ficar, pois é uma ação que exige confirmação explícita.
     if (!window.confirm(`Você confirma o agendamento para as ${horario}?`)) return;
 
     const dadosAgendamento = {
@@ -70,35 +62,31 @@ function Scheduler({ token, onLogout }) {
       profissional: profissionalSelecionado,
     };
 
-    fetch('http://localhost:8000/api/agendamentos/', {
+    // CORRIGIDO AQUI
+    fetch(`${process.env.REACT_APP_API_URL}/api/agendamentos/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify(dadosAgendamento),
     })
     .then(response => {
       if (response.ok) {
-        // Substituímos o alert() por setMensagem()
         setMensagem({ texto: 'Horário agendado com sucesso!', tipo: 'sucesso' });
         handleVerificarDisponibilidade();
       } else {
         response.json().then(data => {
           const erroMsg = data.detail || 'Não foi possível agendar.';
-          // Substituímos o alert() por setMensagem()
           setMensagem({ texto: `Erro: ${erroMsg}`, tipo: 'erro' });
         });
       }
     });
   };
 
-  // --- RENDERIZAÇÃO (COM O COMPONENTE DE MENSAGEM) ---
   return (
     <div className="App">
       <header className="App-header">
         <button onClick={onLogout} className="logout-botao">Sair</button>
         <h1>Agende seu Horário</h1>
         
-        {/* ### NOVO COMPONENTE DE MENSAGEM ### */}
-        {/* Ele só aparece se houver texto na nossa variável 'mensagem' */}
         {mensagem.texto && (
           <div className={`mensagem ${mensagem.tipo}`}>
             {mensagem.texto}
@@ -106,7 +94,6 @@ function Scheduler({ token, onLogout }) {
         )}
 
         <div className="selecao-container">
-          {/* ... (o resto do JSX continua o mesmo) ... */}
           <select value={servicoSelecionado} onChange={(e) => setServicoSelecionado(e.target.value)}>
             <option value="">Selecione um Serviço</option>
             {servicos.map(servico => (
@@ -130,7 +117,6 @@ function Scheduler({ token, onLogout }) {
         </div>
 
         <div className="resultados-container">
-          {/* ... (o resto do JSX continua o mesmo) ... */}
           <h2>Horários Disponíveis</h2>
           {horariosDisponiveis.length > 0 ? (
             <ul className="horarios-lista">

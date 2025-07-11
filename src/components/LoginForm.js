@@ -9,7 +9,7 @@ function LoginForm({ onLoginSuccess }) {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    fetch('http://localhost:8000/api/token/', {
+      fetch(`${process.env.REACT_APP_API_URL}/api/token/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
