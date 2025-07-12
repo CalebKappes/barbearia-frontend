@@ -179,3 +179,43 @@ button:not(:disabled):hover {
 .logout-botao {
   position: static; /* Remove o posicionamento absoluto */
 }
+/* Adicione no final de App.css */
+
+.admin-container {
+  background-color: #3a3f4a;
+  padding: 2rem;
+  border-radius: 10px;
+  width: 80%;
+  max-width: 800px;
+  margin-top: 2rem;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.admin-table th, .admin-table td {
+  border: 1px solid #444c56;
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.admin-table th {
+  background-color: #282c34;
+}
+
+.admin-table td button {
+  margin-right: 0.5rem;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+}
+
+.btn-edit {
+  background-color: #f0ad4e; /* Laranja */
+}
+
+.btn-delete {
+  background-color: #d9534f; /* Vermelho */
+}
