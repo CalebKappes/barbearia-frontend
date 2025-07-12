@@ -250,3 +250,8 @@ button:not(:disabled):hover {
   color: white;
   box-sizing: border-box; /* Garante que o padding não aumente a largura total */
 }
+/* Adicione no final de App.css */
+.admin-form-toggle {
+  margin-bottom: 1rem;
+  text-align: right;
+}

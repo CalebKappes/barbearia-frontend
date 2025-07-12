@@ -4,17 +4,17 @@ import React, { useState, useEffect } from 'react';
 
 function ServicoManager() {
   const [servicos, setServicos] = useState([]);
-  
-  // --- NOVOS ESTADOS PARA O FORMULÁRIO DE CRIAÇÃO ---
   const [nome, setNome] = useState('');
   const [descricao, setDescricao] = useState('');
   const [preco, setPreco] = useState('');
-  const [duracao, setDuracao] = useState('01:00:00'); // Valor padrão de 1 hora
+  const [duracao, setDuracao] = useState('01:00:00');
   const [mensagem, setMensagem] = useState({ texto: '', tipo: '' });
 
-  // Função para buscar os serviços da API
+  // ### NOVO ESTADO PARA CONTROLAR A VISIBILIDADE DO FORMULÁRIO ###
+  const [isFormVisible, setIsFormVisible] = useState(false);
+
+  // ... (a função fetchServicos e os useEffects continuam os mesmos) ...
   const fetchServicos = () => {
-    // ... (esta função continua a mesma)
     const token = localStorage.getItem('authToken');
     fetch(`${process.env.REACT_APP_API_URL}/api/servicos/`, {
       headers: { 'Authorization': `Bearer ${token}` }
@@ -28,7 +28,6 @@ function ServicoManager() {
     fetchServicos();
   }, []);
   
-  // Efeito para limpar a mensagem após 3 segundos
   useEffect(() => {
     if (mensagem.texto) {
       const timer = setTimeout(() => setMensagem({ texto: '', tipo: '' }), 3000);
@@ -36,28 +35,24 @@ function ServicoManager() {
     }
   }, [mensagem]);
 
-  // --- NOVA FUNÇÃO PARA CRIAR UM SERVIÇO ---
   const handleCreateServico = (e) => {
-    e.preventDefault(); // Impede o recarregamento da página pelo formulário
+    e.preventDefault();
     const token = localStorage.getItem('authToken');
 
     fetch(`${process.env.REACT_APP_API_URL}/api/servicos/`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ nome, descricao, preco, duracao })
     })
     .then(response => {
       if (response.ok) {
         setMensagem({ texto: 'Serviço criado com sucesso!', tipo: 'sucesso' });
-        fetchServicos(); // Atualiza a lista de serviços
-        // Limpa os campos do formulário
+        fetchServicos();
         setNome('');
         setDescricao('');
         setPreco('');
         setDuracao('01:00:00');
+        setIsFormVisible(false); // Esconde o formulário após o sucesso
       } else {
         setMensagem({ texto: 'Erro ao criar serviço.', tipo: 'erro' });
       }
@@ -68,24 +63,32 @@ function ServicoManager() {
     <div className="admin-section">
       <h2>Gerenciar Serviços</h2>
 
-      {/* Exibidor de mensagens de feedback */}
       {mensagem.texto && (
           <div className={`mensagem ${mensagem.tipo}`}>{mensagem.texto}</div>
       )}
 
-      {/* --- NOVO FORMULÁRIO DE CRIAÇÃO --- */}
-      <form onSubmit={handleCreateServico} className="admin-form">
-        <h3>Adicionar Novo Serviço</h3>
-        <input type="text" placeholder="Nome do Serviço" value={nome} onChange={e => setNome(e.target.value)} required />
-        <input type="text" placeholder="Descrição (opcional)" value={descricao} onChange={e => setDescricao(e.target.value)} />
-        <input type="number" step="0.01" placeholder="Preço (ex: 70.00)" value={preco} onChange={e => setPreco(e.target.value)} required />
-        <input type="text" placeholder="Duração (HH:MM:SS)" value={duracao} onChange={e => setDuracao(e.target.value)} required />
-        <button type="submit">Adicionar Serviço</button>
-      </form>
+      {/* ### NOVO BOTÃO PARA MOSTRAR/ESCONDER O FORMULÁRIO ### */}
+      <div className="admin-form-toggle">
+        <button onClick={() => setIsFormVisible(!isFormVisible)}>
+          {isFormVisible ? 'Cancelar' : 'Adicionar Novo Serviço'}
+        </button>
+      </div>
 
-      {/* Tabela que já tínhamos */}
+      {/* ### O FORMULÁRIO AGORA SÓ APARECE SE isFormVisible FOR TRUE ### */}
+      {isFormVisible && (
+        <form onSubmit={handleCreateServico} className="admin-form">
+          <input type="text" placeholder="Nome do Serviço" value={nome} onChange={e => setNome(e.target.value)} required />
+          <input type="text" placeholder="Descrição (opcional)" value={descricao} onChange={e => setDescricao(e.target.value)} />
+          <input type="number" step="0.01" placeholder="Preço (ex: 70.00)" value={preco} onChange={e => setPreco(e.target.value)} required />
+          <input type="text" placeholder="Duração (HH:MM:SS)" value={duracao} onChange={e => setDuracao(e.target.value)} required />
+          <button type="submit">Salvar Serviço</button>
+        </form>
+      )}
+
+      {/* A tabela de serviços continua a mesma */}
       <table className="admin-table">
-        <thead>
+       {/* ... (conteúdo da tabela sem alterações) ... */}
+       <thead>
           <tr>
             <th>Nome</th>
             <th>Duração</th>
