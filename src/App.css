@@ -293,3 +293,9 @@ button:not(:disabled):hover {
 .btn-cancel {
   background-color: #555;
 }
+/* Adicione no final de App.css */
+.admin-divider {
+  border: none;
+  border-top: 1px solid #444c56;
+  margin: 3rem 0;
+}

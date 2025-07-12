@@ -3,6 +3,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import ServicoManager from './ServicoManager'; // Importamos o nosso novo componente
+import ProfissionalManager from './ProfissionalManager'; // 1. Importamos
 
 function AdminDashboard() {
   return (
@@ -18,7 +19,8 @@ function AdminDashboard() {
         {/* Renderizamos o gerenciador de serviços aqui */}
         <div className="admin-container">
           <ServicoManager />
-          {/* No futuro, poderíamos adicionar <ProfissionalManager /> aqui */}
+          <hr className="admin-divider" /> {/* Uma linha para separar */}
+          <ProfissionalManager /> {/* 2. Renderizamos */}
         </div>
 
       </header>
