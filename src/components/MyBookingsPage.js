@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-function MyBookingsPage() {
+// ### A CORREÇÃO ESTÁ AQUI: Adicionamos { servicos, profissionais } ###
+function MyBookingsPage({ servicos, profissionais }) {
   const [agendamentos, setAgendamentos] = useState([]);
   const [mensagem, setMensagem] = useState({ texto: '', tipo: '' });
 
@@ -22,7 +23,6 @@ function MyBookingsPage() {
 
   const handleCancelBooking = (agendamentoId) => {
     if (!window.confirm("Você tem certeza que quer cancelar este agendamento?")) return;
-
     const token = localStorage.getItem('authToken');
     fetch(`${process.env.REACT_APP_API_URL}/api/agendamentos/${agendamentoId}/cancelar/`, {
       method: 'POST',
@@ -31,14 +31,13 @@ function MyBookingsPage() {
     .then(response => {
       if (response.ok) {
         setMensagem({ texto: 'Agendamento cancelado com sucesso!', tipo: 'sucesso' });
-        fetchAgendamentos(); // Atualiza a lista
+        fetchAgendamentos();
       } else {
         setMensagem({ texto: 'Erro ao cancelar o agendamento.', tipo: 'erro' });
       }
     });
   };
   
-  // Efeito para limpar a mensagem
   useEffect(() => {
     if (mensagem.texto) {
       const timer = setTimeout(() => setMensagem({ texto: '', tipo: '' }), 3000);
@@ -62,9 +61,7 @@ function MyBookingsPage() {
           <Link to="/" className="admin-link">Fazer Novo Agendamento</Link>
         </div>
         <h1>Meus Agendamentos</h1>
-
         {mensagem.texto && <div className={`mensagem ${mensagem.tipo}`}>{mensagem.texto}</div>}
-
         <div className="admin-container">
           <table className="admin-table">
             <thead>
@@ -78,8 +75,8 @@ function MyBookingsPage() {
             </thead>
             <tbody>
               {agendamentos.map(ag => (
-                // Adicionamos uma classe CSS se o agendamento estiver cancelado
                 <tr key={ag.id} className={ag.status === 'CAN' ? 'agendamento-cancelado' : ''}>
+                  {/* Agora 'servicos' e 'profissionais' existem aqui */}
                   <td>{servicos.find(s => s.id === ag.servico)?.nome || '...'}</td>
                   <td>{profissionais.find(p => p.id === ag.profissional)?.nome || '...'}</td>
                   <td>{new Date(ag.data_hora_inicio).toLocaleString('pt-BR')}</td>
@@ -100,22 +97,23 @@ function MyBookingsPage() {
     </div>
   );
 }
-// Pequena gambiarra para obter os nomes, o ideal seria o backend já mandar
-// mas para manter simples por agora, vamos buscar aqui também.
+
 function MyBookingsPageWrapper() {
     const [servicos, setServicos] = useState([]);
     const [profissionais, setProfissionais] = useState([]);
 
     useEffect(() => {
         const token = localStorage.getItem('authToken');
-        fetch(`${process.env.REACT_APP_API_URL}/api/servicos/`, { headers: { 'Authorization': `Bearer ${token}` }})
-            .then(res => res.json()).then(data => setServicos(data));
-        fetch(`${process.env.REACT_APP_API_URL}/api/profissionais/`, { headers: { 'Authorization': `Bearer ${token}` }})
-            .then(res => res.json()).then(data => setProfissionais(data));
+        if (token) {
+          fetch(`${process.env.REACT_APP_API_URL}/api/servicos/`, { headers: { 'Authorization': `Bearer ${token}` }})
+              .then(res => res.json()).then(data => setServicos(data));
+          fetch(`${process.env.REACT_APP_API_URL}/api/profissionais/`, { headers: { 'Authorization': `Bearer ${token}` }})
+              .then(res => res.json()).then(data => setProfissionais(data));
+        }
     }, []);
-
+    
+    // Passamos os dados para o componente filho
     return <MyBookingsPage servicos={servicos} profissionais={profissionais} />
 }
-
 
 export default MyBookingsPageWrapper;
