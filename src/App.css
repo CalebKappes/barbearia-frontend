@@ -299,3 +299,13 @@ button:not(:disabled):hover {
   border-top: 1px solid #444c56;
   margin: 3rem 0;
 }
+/* Adicione no final de App.css */
+.agendamento-cancelado {
+  background-color: #444c56;
+  color: #888;
+  text-decoration: line-through; /* Tacha o texto */
+}
+
+.agendamento-cancelado button {
+  display: none; /* Esconde o botão de cancelar */
+}

@@ -1,10 +1,10 @@
 // src/components/Scheduler.js
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom'; // Importamos o Link
+import { Link } from 'react-router-dom';
 
 function Scheduler({ user, onLogout }) {
-  // ... (toda a lógica interna do Scheduler continua exatamente a mesma)
+  // Toda a sua lógica de state e as funções continuam exatamente iguais
   const [servicos, setServicos] = useState([]);
   const [profissionais, setProfissionais] = useState([]);
   const [horariosDisponiveis, setHorariosDisponiveis] = useState([]);
@@ -34,7 +34,7 @@ function Scheduler({ user, onLogout }) {
     }
   }, [mensagem]);
 
-  const handleVerificarDisponibilidade = () => { /* ...código sem alterações... */ 
+  const handleVerificarDisponibilidade = () => {
     if (!servicoSelecionado || !profissionalSelecionado || !dataSelecionada) {
       setMensagem({ texto: 'Por favor, selecione um serviço, um profissional e uma data.', tipo: 'erro' });
       return;
@@ -50,7 +50,7 @@ function Scheduler({ user, onLogout }) {
       });
   };
 
-  const handleAgendarHorario = (horario) => { /* ...código sem alterações... */
+  const handleAgendarHorario = (horario) => {
     if (!window.confirm(`Você confirma o agendamento para as ${horario}?`)) return;
     const token = localStorage.getItem('authToken');
     if (!token) {
@@ -83,9 +83,10 @@ function Scheduler({ user, onLogout }) {
   return (
     <div className="App">
       <header className="App-header">
-        {/* ### CONTAINER ADICIONADO PARA ORGANIZAR O TOPO ### */}
         <div className="header-nav">
-          {/* Mostra o link para a área de gestão APENAS se o usuário for staff */}
+          {/* ### A LINHA QUE FALTAVA FOI ADICIONADA AQUI ### */}
+          <Link to="/meus-agendamentos" className="admin-link">Meus Agendamentos</Link>
+          
           {user && user.is_staff && (
             <Link to="/admin" className="admin-link">Área de Gestão</Link>
           )}
@@ -97,7 +98,6 @@ function Scheduler({ user, onLogout }) {
         {mensagem.texto && <div className={`mensagem ${mensagem.tipo}`}>{mensagem.texto}</div>}
 
         <div className="selecao-container">
-            {/* ...código dos seletores sem alterações... */}
             <select value={servicoSelecionado} onChange={(e) => setServicoSelecionado(e.target.value)}>
                 <option value="">Selecione um Serviço</option>
                 {servicos.map(servico => (
