@@ -9,8 +9,6 @@ function ServicoManager() {
   const [preco, setPreco] = useState('');
   const [duracao, setDuracao] = useState('01:00:00');
   const [mensagem, setMensagem] = useState({ texto: '', tipo: '' });
-
-  // ### NOVO ESTADO PARA CONTROLAR A VISIBILIDADE DO FORMULÁRIO ###
   const [isFormVisible, setIsFormVisible] = useState(false);
 
   // ... (a função fetchServicos e os useEffects continuam os mesmos) ...
@@ -24,10 +22,7 @@ function ServicoManager() {
     .catch(error => console.error("Erro ao buscar serviços:", error));
   };
 
-  useEffect(() => {
-    fetchServicos();
-  }, []);
-  
+  useEffect(() => { fetchServicos(); }, []);
   useEffect(() => {
     if (mensagem.texto) {
       const timer = setTimeout(() => setMensagem({ texto: '', tipo: '' }), 3000);
@@ -38,7 +33,6 @@ function ServicoManager() {
   const handleCreateServico = (e) => {
     e.preventDefault();
     const token = localStorage.getItem('authToken');
-
     fetch(`${process.env.REACT_APP_API_URL}/api/servicos/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -48,35 +42,52 @@ function ServicoManager() {
       if (response.ok) {
         setMensagem({ texto: 'Serviço criado com sucesso!', tipo: 'sucesso' });
         fetchServicos();
-        setNome('');
-        setDescricao('');
-        setPreco('');
-        setDuracao('01:00:00');
-        setIsFormVisible(false); // Esconde o formulário após o sucesso
+        setNome(''); setDescricao(''); setPreco(''); setDuracao('01:00:00');
+        setIsFormVisible(false);
       } else {
         setMensagem({ texto: 'Erro ao criar serviço.', tipo: 'erro' });
       }
     });
   };
 
+  // ### NOVA FUNÇÃO PARA APAGAR UM SERVIÇO ###
+  const handleDeleteServico = (servicoId) => {
+    // Pede confirmação antes de apagar
+    if (!window.confirm("Você tem certeza que quer apagar este serviço?")) {
+      return;
+    }
+
+    const token = localStorage.getItem('authToken');
+    // A URL agora aponta para o serviço específico (ex: /api/servicos/5/)
+    fetch(`${process.env.REACT_APP_API_URL}/api/servicos/${servicoId}/`, {
+      method: 'DELETE', // O método HTTP para apagar
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+    })
+    .then(response => {
+      if (response.ok) { // Status 204 No Content também é 'ok'
+        setMensagem({ texto: 'Serviço apagado com sucesso!', tipo: 'sucesso' });
+        fetchServicos(); // Atualiza a lista de serviços para remover o que foi apagado
+      } else {
+        setMensagem({ texto: 'Erro ao apagar serviço.', tipo: 'erro' });
+      }
+    });
+  };
+
+
   return (
     <div className="admin-section">
       <h2>Gerenciar Serviços</h2>
-
-      {mensagem.texto && (
-          <div className={`mensagem ${mensagem.tipo}`}>{mensagem.texto}</div>
-      )}
-
-      {/* ### NOVO BOTÃO PARA MOSTRAR/ESCONDER O FORMULÁRIO ### */}
+      {mensagem.texto && <div className={`mensagem ${mensagem.tipo}`}>{mensagem.texto}</div>}
       <div className="admin-form-toggle">
         <button onClick={() => setIsFormVisible(!isFormVisible)}>
           {isFormVisible ? 'Cancelar' : 'Adicionar Novo Serviço'}
         </button>
       </div>
-
-      {/* ### O FORMULÁRIO AGORA SÓ APARECE SE isFormVisible FOR TRUE ### */}
       {isFormVisible && (
         <form onSubmit={handleCreateServico} className="admin-form">
+          {/* ... (o formulário continua o mesmo) ... */}
           <input type="text" placeholder="Nome do Serviço" value={nome} onChange={e => setNome(e.target.value)} required />
           <input type="text" placeholder="Descrição (opcional)" value={descricao} onChange={e => setDescricao(e.target.value)} />
           <input type="number" step="0.01" placeholder="Preço (ex: 70.00)" value={preco} onChange={e => setPreco(e.target.value)} required />
@@ -85,9 +96,7 @@ function ServicoManager() {
         </form>
       )}
 
-      {/* A tabela de serviços continua a mesma */}
       <table className="admin-table">
-       {/* ... (conteúdo da tabela sem alterações) ... */}
        <thead>
           <tr>
             <th>Nome</th>
@@ -104,7 +113,8 @@ function ServicoManager() {
               <td>R$ {servico.preco}</td>
               <td>
                 <button className="btn-edit">Editar</button>
-                <button className="btn-delete">Apagar</button>
+                {/* ### BOTÃO DE APAGAR AGORA CHAMA A NOVA FUNÇÃO ### */}
+                <button className="btn-delete" onClick={() => handleDeleteServico(servico.id)}>Apagar</button>
               </td>
             </tr>
           ))}
