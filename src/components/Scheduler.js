@@ -1,10 +1,10 @@
 // src/components/Scheduler.js
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom'; // 1. Importamos o componente de Link para navegação
+import { Link } from 'react-router-dom'; // Importamos o Link
 
-// 2. Agora recebemos o objeto 'user' completo, não apenas o token
 function Scheduler({ user, onLogout }) {
+  // ... (toda a lógica interna do Scheduler continua exatamente a mesma)
   const [servicos, setServicos] = useState([]);
   const [profissionais, setProfissionais] = useState([]);
   const [horariosDisponiveis, setHorariosDisponiveis] = useState([]);
@@ -15,28 +15,26 @@ function Scheduler({ user, onLogout }) {
   const [mensagem, setMensagem] = useState({ texto: '', tipo: '' });
 
   useEffect(() => {
-    // A verificação 'user' garante que só buscamos dados se estiver logado
     if (user) {
-      fetch(`${process.env.REACT_APP_API_URL}/api/servicos/`)
+      const token = localStorage.getItem('authToken');
+      fetch(`${process.env.REACT_APP_API_URL}/api/servicos/`, { headers: { 'Authorization': `Bearer ${token}` }})
         .then(response => response.json())
         .then(data => setServicos(data));
 
-      fetch(`${process.env.REACT_APP_API_URL}/api/profissionais/`)
+      fetch(`${process.env.REACT_APP_API_URL}/api/profissionais/`, { headers: { 'Authorization': `Bearer ${token}` }})
         .then(response => response.json())
         .then(data => setProfissionais(data));
     }
-  }, [user]); // Roda este efeito se o usuário mudar (ex: ao fazer login)
+  }, [user]);
 
   useEffect(() => {
     if (mensagem.texto) {
-      const timer = setTimeout(() => {
-        setMensagem({ texto: '', tipo: '' });
-      }, 5000);
+      const timer = setTimeout(() => { setMensagem({ texto: '', tipo: '' }); }, 5000);
       return () => clearTimeout(timer);
     }
   }, [mensagem]);
 
-  const handleVerificarDisponibilidade = () => {
+  const handleVerificarDisponibilidade = () => { /* ...código sem alterações... */ 
     if (!servicoSelecionado || !profissionalSelecionado || !dataSelecionada) {
       setMensagem({ texto: 'Por favor, selecione um serviço, um profissional e uma data.', tipo: 'erro' });
       return;
@@ -52,28 +50,21 @@ function Scheduler({ user, onLogout }) {
       });
   };
 
-  const handleAgendarHorario = (horario) => {
+  const handleAgendarHorario = (horario) => { /* ...código sem alterações... */
     if (!window.confirm(`Você confirma o agendamento para as ${horario}?`)) return;
-
-    // 3. A função de agendar agora pega o token diretamente do localStorage
     const token = localStorage.getItem('authToken');
     if (!token) {
       setMensagem({ texto: 'Sessão expirada. Por favor, faça o login novamente.', tipo: 'erro' });
       return;
     }
-
     const dadosAgendamento = {
       data_hora_inicio: `${dataSelecionada}T${horario}:00`,
       servico: servicoSelecionado,
       profissional: profissionalSelecionado,
     };
-
     fetch(`${process.env.REACT_APP_API_URL}/api/agendamentos/`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}` // Usa o token pego do armazenamento
-      },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify(dadosAgendamento),
     })
     .then(response => {
@@ -92,8 +83,9 @@ function Scheduler({ user, onLogout }) {
   return (
     <div className="App">
       <header className="App-header">
+        {/* ### CONTAINER ADICIONADO PARA ORGANIZAR O TOPO ### */}
         <div className="header-nav">
-          {/* 4. Mostra o link para a área de gestão APENAS se o usuário for staff */}
+          {/* Mostra o link para a área de gestão APENAS se o usuário for staff */}
           {user && user.is_staff && (
             <Link to="/admin" className="admin-link">Área de Gestão</Link>
           )}
@@ -102,33 +94,30 @@ function Scheduler({ user, onLogout }) {
         
         <h1>Agende seu Horário</h1>
         
-        {mensagem.texto && (
-          <div className={`mensagem ${mensagem.tipo}`}>
-            {mensagem.texto}
-          </div>
-        )}
+        {mensagem.texto && <div className={`mensagem ${mensagem.tipo}`}>{mensagem.texto}</div>}
 
         <div className="selecao-container">
-          <select value={servicoSelecionado} onChange={(e) => setServicoSelecionado(e.target.value)}>
-            <option value="">Selecione um Serviço</option>
-            {servicos.map(servico => (
-              <option key={servico.id} value={servico.id}>
-                {servico.nome} ({servico.duracao.substring(0, 5)})
-              </option>
-            ))}
-          </select>
-          <select value={profissionalSelecionado} onChange={(e) => setProfissionalSelecionado(e.target.value)}>
-            <option value="">Selecione um Profissional</option>
-            {profissionais.map(profissional => (
-              <option key={profissional.id} value={profissional.id}>
-                {profissional.nome}
-              </option>
-            ))}
-          </select>
-          <input type="date" value={dataSelecionada} onChange={(e) => setDataSelecionada(e.target.value)} />
-          <button onClick={handleVerificarDisponibilidade} disabled={carregando}>
-            {carregando ? 'Verificando...' : 'Verificar Disponibilidade'}
-          </button>
+            {/* ...código dos seletores sem alterações... */}
+            <select value={servicoSelecionado} onChange={(e) => setServicoSelecionado(e.target.value)}>
+                <option value="">Selecione um Serviço</option>
+                {servicos.map(servico => (
+                <option key={servico.id} value={servico.id}>
+                    {servico.nome} ({servico.duracao.substring(0, 5)})
+                </option>
+                ))}
+            </select>
+            <select value={profissionalSelecionado} onChange={(e) => setProfissionalSelecionado(e.target.value)}>
+                <option value="">Selecione um Profissional</option>
+                {profissionais.map(profissional => (
+                <option key={profissional.id} value={profissional.id}>
+                    {profissional.nome}
+                </option>
+                ))}
+            </select>
+            <input type="date" value={dataSelecionada} onChange={(e) => setDataSelecionada(e.target.value)} />
+            <button onClick={handleVerificarDisponibilidade} disabled={carregando}>
+                {carregando ? 'Verificando...' : 'Verificar Disponibilidade'}
+            </button>
         </div>
 
         <div className="resultados-container">
@@ -136,16 +125,10 @@ function Scheduler({ user, onLogout }) {
           {horariosDisponiveis.length > 0 ? (
             <ul className="horarios-lista">
               {horariosDisponiveis.map(horario => (
-                <li key={horario}>
-                  <button className="horario-botao" onClick={() => handleAgendarHorario(horario)}>
-                    {horario}
-                  </button>
-                </li>
+                <li key={horario}><button className="horario-botao" onClick={() => handleAgendarHorario(horario)}>{horario}</button></li>
               ))}
             </ul>
-          ) : (
-            <p>{carregando ? '' : 'Selecione as opções acima para ver os horários.'}</p>
-          )}
+          ) : ( <p>{carregando ? '' : 'Selecione as opções acima para ver os horários.'}</p> )}
         </div>
       </header>
     </div>

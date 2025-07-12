@@ -1,53 +1,67 @@
 // src/App.js
+
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode'; // Note a importação correta
+// Adicionamos 'Navigate' para redirecionar usuários não autorizados
+import { Routes, Route, useNavigate, Link } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 import './App.css';
 
 import LoginForm from './components/LoginForm';
 import Scheduler from './components/Scheduler';
+import AdminDashboard from './components/AdminDashboard'; // Importamos o novo painel
 
 function App() {
-  // Agora guardamos o objeto do usuário, que decodificaremos do token
-  const [user, setUser] = useState(null); 
-  const navigate = useNavigate(); // Hook para nos ajudar a navegar entre páginas
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
-  // Este efeito roda uma vez quando o app carrega
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     if (token) {
-      const decodedUser = jwtDecode(token);
-      setUser(decodedUser);
+      try {
+        const decodedUser = jwtDecode(token);
+        setUser(decodedUser);
+      } catch (error) {
+        // Se o token for inválido, limpa
+        localStorage.removeItem('authToken');
+      }
     }
   }, []);
 
   const handleLoginSuccess = (token) => {
     localStorage.setItem('authToken', token);
     const decodedUser = jwtDecode(token);
-    setUser(decodedUser); // Guarda as informações do usuário, não só o token
-    navigate('/'); // Navega para a página principal após o login
+    setUser(decodedUser);
+    // Se o usuário for admin, pode redirecionar para o painel, senão para a home.
+    if (decodedUser.is_staff) {
+      navigate('/admin');
+    } else {
+      navigate('/');
+    }
   };
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
     setUser(null);
-    navigate('/login'); // Navega para a página de login após o logout
+    navigate('/login');
   };
 
-  // Lógica de renderização agora usa o sistema de Rotas
   return (
     <Routes>
-      {/* Rota principal: se tem usuário, mostra o agendador, senão, vai para o login */}
+      {/* Rota Principal (Agendador) - Protegida */}
       <Route 
         path="/" 
-        element={user ? <Scheduler user={user} onLogout={handleLogout} /> : <LoginForm onLoginSuccess={handleLoginSuccess} />} 
+        element={user ? <Scheduler user={user} onLogout={handleLogout} /> : <Navigate to="/login" />} 
       />
-      {/* Rota de login */}
+      {/* Rota de Login */}
       <Route 
         path="/login" 
         element={<LoginForm onLoginSuccess={handleLoginSuccess} />} 
       />
-      {/* Aqui adicionaremos a rota de admin mais tarde */}
+      {/* ### NOVA ROTA DE ADMIN PROTEGIDA ### */}
+      <Route 
+        path="/admin"
+        element={user && user.is_staff ? <AdminDashboard /> : <Navigate to="/" />}
+      />
     </Routes>
   );
 }
