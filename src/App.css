@@ -255,3 +255,41 @@ button:not(:disabled):hover {
   margin-bottom: 1rem;
   text-align: right;
 }
+/* Adicione no final de App.css */
+
+.modal-overlay {
+  position: fixed; /* Fica fixo na tela */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7); /* Fundo preto semi-transparente */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; /* Garante que fique sobre todo o resto */
+}
+
+.modal-content {
+  background-color: #3a3f4a;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  width: 90%;
+  max-width: 400px;
+}
+
+.modal-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.btn-confirm {
+  background-color: #d9534f; /* Vermelho, para ações destrutivas */
+}
+
+.btn-cancel {
+  background-color: #555;
+}

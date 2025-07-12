@@ -1,6 +1,7 @@
 // src/components/ServicoManager.js
 
 import React, { useState, useEffect } from 'react';
+import ConfirmationModal from './ConfirmationModal'; // 1. Importamos nosso novo modal
 
 function ServicoManager() {
   const [servicos, setServicos] = useState([]);
@@ -10,18 +11,17 @@ function ServicoManager() {
   const [duracao, setDuracao] = useState('01:00:00');
   const [mensagem, setMensagem] = useState({ texto: '', tipo: '' });
   const [isFormVisible, setIsFormVisible] = useState(false);
+  
+  // 2. Novo estado para controlar o modal de exclusão
+  const [servicoParaDeletar, setServicoParaDeletar] = useState(null);
 
-  // ... (a função fetchServicos e os useEffects continuam os mesmos) ...
+  // ... (fetchServicos e useEffects continuam os mesmos) ...
   const fetchServicos = () => {
     const token = localStorage.getItem('authToken');
-    fetch(`${process.env.REACT_APP_API_URL}/api/servicos/`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-    .then(response => response.json())
-    .then(data => setServicos(data))
-    .catch(error => console.error("Erro ao buscar serviços:", error));
+    fetch(`${process.env.REACT_APP_API_URL}/api/servicos/`, { headers: { 'Authorization': `Bearer ${token}` }})
+      .then(response => response.json())
+      .then(data => setServicos(data));
   };
-
   useEffect(() => { fetchServicos(); }, []);
   useEffect(() => {
     if (mensagem.texto) {
@@ -30,7 +30,7 @@ function ServicoManager() {
     }
   }, [mensagem]);
 
-  const handleCreateServico = (e) => {
+  const handleCreateServico = (e) => { /* ... (código sem alterações) ... */
     e.preventDefault();
     const token = localStorage.getItem('authToken');
     fetch(`${process.env.REACT_APP_API_URL}/api/servicos/`, {
@@ -50,34 +50,38 @@ function ServicoManager() {
     });
   };
 
-  // ### NOVA FUNÇÃO PARA APAGAR UM SERVIÇO ###
+  // 3. A função de apagar agora é dividida em duas partes
   const handleDeleteServico = (servicoId) => {
-    // Pede confirmação antes de apagar
-    if (!window.confirm("Você tem certeza que quer apagar este serviço?")) {
-      return;
-    }
+    // Apenas define qual serviço será apagado, abrindo o modal
+    setServicoParaDeletar(servicoId);
+  };
 
+  const confirmDelete = () => {
     const token = localStorage.getItem('authToken');
-    // A URL agora aponta para o serviço específico (ex: /api/servicos/5/)
-    fetch(`${process.env.REACT_APP_API_URL}/api/servicos/${servicoId}/`, {
-      method: 'DELETE', // O método HTTP para apagar
-      headers: {
-        'Authorization': `Bearer ${token}`
-      },
+    fetch(`${process.env.REACT_APP_API_URL}/api/servicos/${servicoParaDeletar}/`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` },
     })
     .then(response => {
-      if (response.ok) { // Status 204 No Content também é 'ok'
+      if (response.ok) {
         setMensagem({ texto: 'Serviço apagado com sucesso!', tipo: 'sucesso' });
-        fetchServicos(); // Atualiza a lista de serviços para remover o que foi apagado
+        fetchServicos();
       } else {
         setMensagem({ texto: 'Erro ao apagar serviço.', tipo: 'erro' });
       }
+    })
+    .finally(() => {
+      setServicoParaDeletar(null); // Fecha o modal
     });
   };
 
+  const cancelDelete = () => {
+    setServicoParaDeletar(null); // Apenas fecha o modal
+  };
 
   return (
     <div className="admin-section">
+      {/* ... (o resto do JSX até a tabela continua o mesmo) ... */}
       <h2>Gerenciar Serviços</h2>
       {mensagem.texto && <div className={`mensagem ${mensagem.tipo}`}>{mensagem.texto}</div>}
       <div className="admin-form-toggle">
@@ -87,7 +91,6 @@ function ServicoManager() {
       </div>
       {isFormVisible && (
         <form onSubmit={handleCreateServico} className="admin-form">
-          {/* ... (o formulário continua o mesmo) ... */}
           <input type="text" placeholder="Nome do Serviço" value={nome} onChange={e => setNome(e.target.value)} required />
           <input type="text" placeholder="Descrição (opcional)" value={descricao} onChange={e => setDescricao(e.target.value)} />
           <input type="number" step="0.01" placeholder="Preço (ex: 70.00)" value={preco} onChange={e => setPreco(e.target.value)} required />
@@ -97,7 +100,8 @@ function ServicoManager() {
       )}
 
       <table className="admin-table">
-       <thead>
+        {/* ... (cabeçalho da tabela sem alterações) ... */}
+        <thead>
           <tr>
             <th>Nome</th>
             <th>Duração</th>
@@ -113,13 +117,21 @@ function ServicoManager() {
               <td>R$ {servico.preco}</td>
               <td>
                 <button className="btn-edit">Editar</button>
-                {/* ### BOTÃO DE APAGAR AGORA CHAMA A NOVA FUNÇÃO ### */}
+                {/* O botão agora chama a função que abre o modal */}
                 <button className="btn-delete" onClick={() => handleDeleteServico(servico.id)}>Apagar</button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {/* 4. Renderizamos nosso modal de confirmação aqui */}
+      <ConfirmationModal
+        isOpen={servicoParaDeletar !== null}
+        message="Você tem certeza que quer apagar este serviço?"
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
     </div>
   );
 }
