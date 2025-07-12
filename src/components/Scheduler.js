@@ -1,8 +1,10 @@
 // src/components/Scheduler.js
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom'; // 1. Importamos o componente de Link para navegação
 
-function Scheduler({ token, onLogout }) {
+// 2. Agora recebemos o objeto 'user' completo, não apenas o token
+function Scheduler({ user, onLogout }) {
   const [servicos, setServicos] = useState([]);
   const [profissionais, setProfissionais] = useState([]);
   const [horariosDisponiveis, setHorariosDisponiveis] = useState([]);
@@ -13,20 +15,17 @@ function Scheduler({ token, onLogout }) {
   const [mensagem, setMensagem] = useState({ texto: '', tipo: '' });
 
   useEffect(() => {
-    if (token) {
-      // CORRIGIDO AQUI
+    // A verificação 'user' garante que só buscamos dados se estiver logado
+    if (user) {
       fetch(`${process.env.REACT_APP_API_URL}/api/servicos/`)
         .then(response => response.json())
-        .then(data => setServicos(data))
-        .catch(error => console.error('Erro ao buscar serviços:', error));
+        .then(data => setServicos(data));
 
-      // CORRIGIDO AQUI
       fetch(`${process.env.REACT_APP_API_URL}/api/profissionais/`)
         .then(response => response.json())
-        .then(data => setProfissionais(data))
-        .catch(error => console.error('Erro ao buscar profissionais:', error));
+        .then(data => setProfissionais(data));
     }
-  }, [token]);
+  }, [user]); // Roda este efeito se o usuário mudar (ex: ao fazer login)
 
   useEffect(() => {
     if (mensagem.texto) {
@@ -56,16 +55,25 @@ function Scheduler({ token, onLogout }) {
   const handleAgendarHorario = (horario) => {
     if (!window.confirm(`Você confirma o agendamento para as ${horario}?`)) return;
 
+    // 3. A função de agendar agora pega o token diretamente do localStorage
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      setMensagem({ texto: 'Sessão expirada. Por favor, faça o login novamente.', tipo: 'erro' });
+      return;
+    }
+
     const dadosAgendamento = {
       data_hora_inicio: `${dataSelecionada}T${horario}:00`,
       servico: servicoSelecionado,
       profissional: profissionalSelecionado,
     };
 
-    // CORRIGIDO AQUI
     fetch(`${process.env.REACT_APP_API_URL}/api/agendamentos/`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` // Usa o token pego do armazenamento
+      },
       body: JSON.stringify(dadosAgendamento),
     })
     .then(response => {
@@ -84,7 +92,14 @@ function Scheduler({ token, onLogout }) {
   return (
     <div className="App">
       <header className="App-header">
-        <button onClick={onLogout} className="logout-botao">Sair</button>
+        <div className="header-nav">
+          {/* 4. Mostra o link para a área de gestão APENAS se o usuário for staff */}
+          {user && user.is_staff && (
+            <Link to="/admin" className="admin-link">Área de Gestão</Link>
+          )}
+          <button onClick={onLogout} className="logout-botao">Sair</button>
+        </div>
+        
         <h1>Agende seu Horário</h1>
         
         {mensagem.texto && (

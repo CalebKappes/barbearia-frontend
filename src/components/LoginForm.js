@@ -2,14 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 
-function LoginForm({ onLoginSuccess, onNavigateToRegister }) {
+// MUDANÇA 1: Removemos 'onNavigateToRegister' dos parâmetros
+function LoginForm({ onLoginSuccess }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   
-  // Adicionamos o estado para controlar a mensagem
   const [mensagem, setMensagem] = useState({ texto: '', tipo: '' });
 
-  // Efeito para limpar a mensagem após 5 segundos
   useEffect(() => {
     if (mensagem.texto) {
       const timer = setTimeout(() => {
@@ -31,7 +30,6 @@ function LoginForm({ onLoginSuccess, onNavigateToRegister }) {
       if (data.access) {
         onLoginSuccess(data.access);
       } else {
-        // Trocamos o alert() pela nossa mensagem de erro
         setMensagem({ texto: 'Nome de usuário ou senha inválidos.', tipo: 'erro' });
       }
     })
@@ -46,7 +44,6 @@ function LoginForm({ onLoginSuccess, onNavigateToRegister }) {
       <header className="App-header">
         <h1>Login da Barbearia</h1>
 
-        {/* Exibimos a mensagem aqui */}
         {mensagem.texto && (
           <div className={`mensagem ${mensagem.tipo}`}>
             {mensagem.texto}
@@ -59,9 +56,9 @@ function LoginForm({ onLoginSuccess, onNavigateToRegister }) {
           <button type="submit">Entrar</button>
         </form>
 
-        <button onClick={onNavigateToRegister} className="link-botao">
-          Não tem uma conta? Cadastre-se
-        </button>
+        {/* MUDANÇA 2: O botão de cadastro foi removido daqui.
+            Vamos adicioná-lo de volta no App.js de forma mais inteligente. */}
+            
       </header>
     </div>
   );
