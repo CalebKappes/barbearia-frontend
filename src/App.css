@@ -219,3 +219,34 @@ button:not(:disabled):hover {
 .btn-delete {
   background-color: #d9534f; /* Vermelho */
 }
+/* Adicione no final de App.css */
+
+.admin-section {
+  width: 100%;
+}
+
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background-color: #444c56;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.admin-form h3 {
+  margin-top: 0;
+  text-align: left;
+}
+
+.admin-form input {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #61dafb;
+  background-color: #3a3f4a;
+  color: white;
+  box-sizing: border-box; /* Garante que o padding não aumente a largura total */
+}
