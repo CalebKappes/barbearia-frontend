@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import ConfirmationModal from './ConfirmationModal'; // 1. Importamos nosso modal
 
 function Scheduler({ user, onLogout }) {
-  // Toda a sua lógica de state e as funções continuam exatamente iguais
   const [servicos, setServicos] = useState([]);
   const [profissionais, setProfissionais] = useState([]);
   const [horariosDisponiveis, setHorariosDisponiveis] = useState([]);
@@ -14,13 +14,15 @@ function Scheduler({ user, onLogout }) {
   const [carregando, setCarregando] = useState(false);
   const [mensagem, setMensagem] = useState({ texto: '', tipo: '' });
 
+  // 2. Novo estado para controlar o modal de agendamento
+  const [horarioParaAgendar, setHorarioParaAgendar] = useState(null);
+
   useEffect(() => {
     if (user) {
       const token = localStorage.getItem('authToken');
       fetch(`${process.env.REACT_APP_API_URL}/api/servicos/`, { headers: { 'Authorization': `Bearer ${token}` }})
         .then(response => response.json())
         .then(data => setServicos(data));
-
       fetch(`${process.env.REACT_APP_API_URL}/api/profissionais/`, { headers: { 'Authorization': `Bearer ${token}` }})
         .then(response => response.json())
         .then(data => setProfissionais(data));
@@ -29,7 +31,7 @@ function Scheduler({ user, onLogout }) {
 
   useEffect(() => {
     if (mensagem.texto) {
-      const timer = setTimeout(() => { setMensagem({ texto: '', tipo: '' }); }, 5000);
+      const timer = setTimeout(() => { setMensagem({ texto: '', tipo: '' }); }, 3000);
       return () => clearTimeout(timer);
     }
   }, [mensagem]);
@@ -50,15 +52,16 @@ function Scheduler({ user, onLogout }) {
       });
   };
 
-  const handleAgendarHorario = (horario) => {
-    if (!window.confirm(`Você confirma o agendamento para as ${horario}?`)) return;
+  // 3. A função agora só define qual horário agendar, abrindo o modal
+  const handleAgendarClick = (horario) => {
+    setHorarioParaAgendar(horario);
+  };
+  
+  // 4. A lógica de criar o agendamento foi movida para esta nova função
+  const confirmAgendamento = () => {
     const token = localStorage.getItem('authToken');
-    if (!token) {
-      setMensagem({ texto: 'Sessão expirada. Por favor, faça o login novamente.', tipo: 'erro' });
-      return;
-    }
     const dadosAgendamento = {
-      data_hora_inicio: `${dataSelecionada}T${horario}:00`,
+      data_hora_inicio: `${dataSelecionada}T${horarioParaAgendar}:00`,
       servico: servicoSelecionado,
       profissional: profissionalSelecionado,
     };
@@ -77,6 +80,9 @@ function Scheduler({ user, onLogout }) {
           setMensagem({ texto: `Erro: ${erroMsg}`, tipo: 'erro' });
         });
       }
+    })
+    .finally(() => {
+      setHorarioParaAgendar(null); // Fecha o modal
     });
   };
 
@@ -84,21 +90,17 @@ function Scheduler({ user, onLogout }) {
     <div className="App">
       <header className="App-header">
         <div className="header-nav">
-          {/* ### A LINHA QUE FALTAVA FOI ADICIONADA AQUI ### */}
           <Link to="/meus-agendamentos" className="admin-link">Meus Agendamentos</Link>
-          
           {user && user.is_staff && (
             <Link to="/admin" className="admin-link">Área de Gestão</Link>
           )}
           <button onClick={onLogout} className="logout-botao">Sair</button>
         </div>
-        
         <h1>Agende seu Horário</h1>
-        
         {mensagem.texto && <div className={`mensagem ${mensagem.tipo}`}>{mensagem.texto}</div>}
-
         <div className="selecao-container">
-            <select value={servicoSelecionado} onChange={(e) => setServicoSelecionado(e.target.value)}>
+          {/* ... (seletores continuam iguais) ... */}
+          <select value={servicoSelecionado} onChange={(e) => setServicoSelecionado(e.target.value)}>
                 <option value="">Selecione um Serviço</option>
                 {servicos.map(servico => (
                 <option key={servico.id} value={servico.id}>
@@ -119,18 +121,30 @@ function Scheduler({ user, onLogout }) {
                 {carregando ? 'Verificando...' : 'Verificar Disponibilidade'}
             </button>
         </div>
-
         <div className="resultados-container">
           <h2>Horários Disponíveis</h2>
           {horariosDisponiveis.length > 0 ? (
             <ul className="horarios-lista">
               {horariosDisponiveis.map(horario => (
-                <li key={horario}><button className="horario-botao" onClick={() => handleAgendarHorario(horario)}>{horario}</button></li>
+                <li key={horario}>
+                  {/* O botão agora chama a função que abre o modal */}
+                  <button className="horario-botao" onClick={() => handleAgendarClick(horario)}>
+                    {horario}
+                  </button>
+                </li>
               ))}
             </ul>
           ) : ( <p>{carregando ? '' : 'Selecione as opções acima para ver os horários.'}</p> )}
         </div>
       </header>
+
+      {/* 5. Renderizamos nosso modal de confirmação aqui */}
+      <ConfirmationModal
+        isOpen={horarioParaAgendar !== null}
+        message={`Você confirma o agendamento para as ${horarioParaAgendar}?`}
+        onConfirm={confirmAgendamento}
+        onCancel={() => setHorarioParaAgendar(null)}
+      />
     </div>
   );
 }
