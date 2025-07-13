@@ -1,5 +1,6 @@
 /* src/App.css */
 
+@import 'react-big-calendar/lib/css/react-big-calendar.css';
 /* Estilo geral do corpo da página */
 body {
   background-color: #282c34;
@@ -308,4 +309,28 @@ button:not(:disabled):hover {
 
 .agendamento-cancelado button {
   display: none; /* Esconde o botão de cancelar */
+}
+/* Adicione no final de App.css */
+
+.admin-tabs {
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #444c56;
+  padding-bottom: 0.5rem;
+  width: 80%;
+  max-width: 800px;
+}
+
+.tab-button {
+  background: none;
+  border: none;
+  color: #888;
+  padding: 0.5rem 1rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  margin-right: 1rem;
+}
+
+.tab-button.active {
+  color: #61dafb;
+  border-bottom: 2px solid #61dafb;
 }

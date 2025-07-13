@@ -1,26 +1,50 @@
 // src/pages/Admin/AdminDashboard.js
-import React from 'react';
-import { Link } from 'react-router-dom';
-import ServicoManager from './ServicoManager'; // Caminho correto
-import ProfissionalManager from './ProfissionalManager'; // Caminho correto
 
-// ... (o resto do componente continua aqui) ...
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import ServicoManager from './ServicoManager';
+import ProfissionalManager from './ProfissionalManager';
+import AgendaView from './AgendaView'; // 1. Importamos a nova visão de agenda
+
 function AdminDashboard() {
+  // 2. Novo estado para controlar qual aba está ativa
+  const [activeTab, setActiveTab] = useState('gerenciar'); // 'gerenciar' ou 'agenda'
+
   return (
     <div className="App">
       <header className="App-header">
         <div className="header-nav">
-          {/* Link para voltar para a página principal */}
           <Link to="/" className="admin-link">Voltar para o App</Link>
         </div>
-
         <h1>Painel de Gestão</h1>
+
+        {/* 3. Botões para alternar entre as abas */}
+        <div className="admin-tabs">
+          <button 
+            className={`tab-button ${activeTab === 'gerenciar' ? 'active' : ''}`}
+            onClick={() => setActiveTab('gerenciar')}
+          >
+            Gerenciar
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'agenda' ? 'active' : ''}`}
+            onClick={() => setActiveTab('agenda')}
+          >
+            Agenda
+          </button>
+        </div>
         
-        {/* Renderizamos o gerenciador de serviços aqui */}
         <div className="admin-container">
-          <ServicoManager />
-          <hr className="admin-divider" /> {/* Uma linha para separar */}
-          <ProfissionalManager /> {/* 2. Renderizamos */}
+          {/* 4. Renderização condicional baseada na aba ativa */}
+          {activeTab === 'gerenciar' ? (
+            <>
+              <ServicoManager />
+              <hr className="admin-divider" />
+              <ProfissionalManager />
+            </>
+          ) : (
+            <AgendaView />
+          )}
         </div>
 
       </header>
