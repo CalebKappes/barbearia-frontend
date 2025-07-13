@@ -1,10 +1,10 @@
-// src/components/AdminDashboard.js
-
+// src/pages/Admin/AdminDashboard.js
 import React from 'react';
 import { Link } from 'react-router-dom';
-import ServicoManager from './ServicoManager'; // Importamos o nosso novo componente
-import ProfissionalManager from './ProfissionalManager'; // 1. Importamos
+import ServicoManager from './ServicoManager'; // Caminho correto
+import ProfissionalManager from './ProfissionalManager'; // Caminho correto
 
+// ... (o resto do componente continua aqui) ...
 function AdminDashboard() {
   return (
     <div className="App">

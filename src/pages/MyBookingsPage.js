@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import ConfirmationModal from './ConfirmationModal'; // 1. Importamos nosso modal
+import ConfirmationModal from '../components/ConfirmationModal';
 
 // Garanta que o componente recebe as props
 function MyBookingsPage({ servicos, profissionais }) {

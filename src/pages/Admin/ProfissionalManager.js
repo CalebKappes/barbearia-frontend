@@ -1,7 +1,6 @@
 // src/pages/Admin/ProfissionalManager.js
 
 import React, { useState, useEffect } from 'react';
-// ### A CORREÇÃO ESTÁ AQUI ###
 import ConfirmationModal from '../../components/ConfirmationModal';
 
 function ProfissionalManager() {

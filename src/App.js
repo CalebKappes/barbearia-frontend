@@ -1,16 +1,16 @@
 // src/App.js
-
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import './App.css';
 
-// ### A CORREÇÃO ESTÁ AQUI - ATUALIZAMOS OS CAMINHOS ###
 import LoginForm from './pages/LoginForm';
 import Scheduler from './pages/Scheduler';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import RegistrationForm from './pages/RegistrationForm';
 import MyBookingsPage from './pages/MyBookingsPage';
+
+// ... (o resto do seu App.js, que já está correto, continua aqui) ...
 
 function App() {
   const [user, setUser] = useState(null);
