@@ -1,12 +1,10 @@
-// src/components/LoginForm.js
+// src/pages/LoginForm.js
 
 import React, { useState, useEffect } from 'react';
 
-// MUDANÇA 1: Removemos 'onNavigateToRegister' dos parâmetros
-function LoginForm({ onLoginSuccess }) {
+function LoginForm({ onLoginSuccess, onNavigateToRegister }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  
   const [mensagem, setMensagem] = useState({ texto: '', tipo: '' });
 
   useEffect(() => {
@@ -34,7 +32,6 @@ function LoginForm({ onLoginSuccess }) {
       }
     })
     .catch(error => {
-      console.error('Erro de login:', error);
       setMensagem({ texto: 'Não foi possível conectar ao servidor.', tipo: 'erro' });
     });
   };
@@ -43,22 +40,18 @@ function LoginForm({ onLoginSuccess }) {
     <div className="App">
       <header className="App-header">
         <h1>Login da Barbearia</h1>
-
         {mensagem.texto && (
-          <div className={`mensagem ${mensagem.tipo}`}>
-            {mensagem.texto}
-          </div>
+          <div className={`mensagem ${mensagem.tipo}`}>{mensagem.texto}</div>
         )}
-
         <form onSubmit={handleLogin} className="login-form">
-          <input type="text" placeholder="Nome de usuário" value={username} onChange={(e) => setUsername(e.target.value)} />
-          <input type="password" placeholder="Senha" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <input type="text" placeholder="Nome de usuário" value={username} onChange={(e) => setUsername(e.target.value)} required/>
+          <input type="password" placeholder="Senha" value={password} onChange={(e) => setPassword(e.target.value)} required/>
           <button type="submit">Entrar</button>
         </form>
-
-        {/* MUDANÇA 2: O botão de cadastro foi removido daqui.
-            Vamos adicioná-lo de volta no App.js de forma mais inteligente. */}
-            
+        {/* Este botão leva o usuário para a tela de cadastro */}
+        <button onClick={onNavigateToRegister} className="link-botao">
+          Não tem uma conta? Cadastre-se
+        </button>
       </header>
     </div>
   );
