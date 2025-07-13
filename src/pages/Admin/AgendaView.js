@@ -15,21 +15,29 @@ function AgendaView() {
   const [servicos, setServicos] = useState([]);
   const [clientes, setClientes] = useState([]);
 
-  // Busca todos os dados necessários quando o componente carrega
+ // src/pages/Admin/AgendaView.js
+
+// ... (imports e início do componente continuam os mesmos) ...
+
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     const headers = { 'Authorization': `Bearer ${token}` };
 
-    // Função para buscar dados de um endpoint
-    const fetchData = (url) => fetch(url, { headers }).then(res => res.json());
+    const fetchData = (url) => fetch(url, { headers }).then(res => {
+        if (!res.ok) { throw new Error(`Falha ao buscar ${url}`); }
+        return res.json();
+    });
 
+    // ### A CORREÇÃO ESTÁ AQUI ###
+    // Trocamos a URL de 'agendamentos' para a nova URL de admin 'admin/agenda'
     Promise.all([
-      fetchData(`${process.env.REACT_APP_API_URL}/api/agendamentos/`),
+      fetchData(`${process.env.REACT_APP_API_URL}/api/admin/agenda/`),
       fetchData(`${process.env.REACT_APP_API_URL}/api/profissionais/`),
       fetchData(`${process.env.REACT_APP_API_URL}/api/servicos/`),
       fetchData(`${process.env.REACT_APP_API_URL}/api/clientes/`),
     ])
     .then(([agendamentosData, profissionaisData, servicosData, clientesData]) => {
+      // ... (o resto da lógica para formatar os eventos continua a mesma)
       setProfissionais(profissionaisData);
       setServicos(servicosData);
       setClientes(clientesData);
@@ -41,19 +49,22 @@ function AgendaView() {
         
         return {
           id: ag.id,
-          title: `${servico?.nome || 'Serviço não encontrado'} - ${cliente?.nome || 'Cliente não encontrado'}`,
+          title: `${servico?.nome || 'Serviço'} - ${cliente?.nome || 'Cliente'}`,
           start: new Date(ag.data_hora_inicio),
           end: new Date(ag.data_hora_fim),
-          resource: profissional?.nome || 'Profissional não encontrado',
+          resource: profissional?.nome,
         };
       });
       setAgendamentos(eventosFormatados);
     })
     .catch(error => {
-      setMensagem({ texto: "Erro ao carregar dados da agenda.", tipo: 'erro' });
+      setMensagem({ texto: "Erro ao carregar dados da agenda. Verifique suas permissões.", tipo: 'erro' });
       console.error("Erro ao buscar dados:", error);
     });
   }, []);
+
+// ... (o resto do componente AgendaView.js continua o mesmo) ...
+
 
   const messages = {
     allDay: 'Dia Inteiro',
