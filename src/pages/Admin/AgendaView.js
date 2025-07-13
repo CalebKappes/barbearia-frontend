@@ -3,9 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
-import 'moment/locale/pt-br'; // Importa a localização para português do Brasil
+import 'moment/locale/pt-br';
 
-// Configura o localizador para usar o moment em português
 moment.locale('pt-br');
 const localizer = momentLocalizer(moment);
 
@@ -13,26 +12,28 @@ function AgendaView() {
   const [agendamentos, setAgendamentos] = useState([]);
   const [mensagem, setMensagem] = useState({ texto: '', tipo: '' });
 
-  // Busca TODOS os agendamentos quando o componente é montado
   useEffect(() => {
     const token = localStorage.getItem('authToken');
+    // Busca TODOS os agendamentos para o admin.
+    // O backend precisa de uma view que permita isso.
+    // Por enquanto, vamos assumir que /api/agendamentos/ retorna todos se o user for admin.
+    // Se não, teríamos que criar um endpoint /api/admin/all-agendamentos/
     fetch(`${process.env.REACT_APP_API_URL}/api/agendamentos/`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
     .then(response => {
       if (!response.ok) {
-        throw new Error('Falha ao buscar agendamentos. Você tem permissão de administrador?');
+        throw new Error('Falha ao buscar agendamentos.');
       }
       return response.json();
     })
     .then(data => {
-      // Formata os dados para o formato que o calendário entende
       const eventosFormatados = data.map(ag => ({
         id: ag.id,
-        title: `${ag.servico.nome} - ${ag.cliente.nome}`,
+        title: `Serviço ID: ${ag.servico} - Cliente ID: ${ag.cliente}`, // Placeholder
         start: new Date(ag.data_hora_inicio),
         end: new Date(ag.data_hora_fim),
-        resource: ag.profissional.nome, // Usamos 'resource' para o profissional
+        resource: `Profissional ID: ${ag.profissional}`, // Placeholder
       }));
       setAgendamentos(eventosFormatados);
     })
@@ -41,7 +42,6 @@ function AgendaView() {
     });
   }, []);
 
-  // Configurações de tradução para os botões do calendário
   const messages = {
     allDay: 'Dia Inteiro',
     previous: 'Anterior',
@@ -62,7 +62,7 @@ function AgendaView() {
     <div className="admin-section">
       <h2>Agenda de Atendimentos</h2>
       {mensagem.texto && <div className={`mensagem ${mensagem.tipo}`}>{mensagem.texto}</div>}
-      <div style={{ height: '70vh' }}> {/* Define uma altura para o container do calendário */}
+      <div style={{ height: '70vh' }}>
         <Calendar
           localizer={localizer}
           events={agendamentos}
@@ -70,8 +70,12 @@ function AgendaView() {
           endAccessor="end"
           style={{ height: '100%' }}
           messages={messages}
-          defaultView="week" // Visão padrão será a de semana
-          views={['day', 'week', 'month']} // Visões disponíveis
+          defaultView="week"
+          views={['day', 'week', 'month']}
+          
+          // ### AS NOVAS PROPRIEDADES ESTÃO AQUI ###
+          min={new Date(0, 0, 0, 6, 0, 0)} // Define a hora mínima para 06:00
+          max={new Date(0, 0, 0, 23, 0, 0)} // Define a hora máxima para 23:00
         />
       </div>
     </div>
