@@ -5,11 +5,12 @@ import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import './App.css';
 
-import LoginForm from './components/LoginForm';
-import Scheduler from './components/Scheduler';
-import AdminDashboard from './components/AdminDashboard';
-import RegistrationForm from './components/RegistrationForm';
-import MyBookingsPage from './components/MyBookingsPage';
+// ### A CORREÇÃO ESTÁ AQUI - ATUALIZAMOS OS CAMINHOS ###
+import LoginForm from './pages/LoginForm';
+import Scheduler from './pages/Scheduler';
+import AdminDashboard from './pages/Admin/AdminDashboard';
+import RegistrationForm from './pages/RegistrationForm';
+import MyBookingsPage from './pages/MyBookingsPage';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -44,30 +45,24 @@ function App() {
     navigate('/login');
   };
 
-  // ### BLOCO DE ROTAS CORRIGIDO ###
   return (
     <Routes>
-      {/* Rota Principal (Agendador) */}
       <Route 
         path="/" 
         element={user ? <Scheduler user={user} onLogout={handleLogout} /> : <Navigate to="/login" />} 
       />
-      {/* Rota de Login */}
       <Route 
         path="/login" 
         element={<LoginForm onLoginSuccess={handleLoginSuccess} onNavigateToRegister={() => navigate('/register')} />} 
       />
-      {/* Rota de Cadastro */}
       <Route
         path="/register"
         element={<RegistrationForm onNavigateToLogin={() => navigate('/login')} />}
       />
-      {/* Rota da Área de Gestão (Admin) */}
       <Route 
         path="/admin"
         element={user && user.is_staff ? <AdminDashboard /> : <Navigate to="/" />}
       />
-      {/* Rota para Meus Agendamentos */}
       <Route
         path="/meus-agendamentos"
         element={user ? <MyBookingsPage /> : <Navigate to="/login" />}

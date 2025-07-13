@@ -1,7 +1,7 @@
 // src/components/ServicoManager.js
 
 import React, { useState, useEffect } from 'react';
-import ConfirmationModal from './ConfirmationModal';
+import ConfirmationModal from '../../components/ConfirmationModal';
 
 function ServicoManager() {
   const [servicos, setServicos] = useState([]);
