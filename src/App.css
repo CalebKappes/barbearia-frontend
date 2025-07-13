@@ -334,3 +334,21 @@ button:not(:disabled):hover {
   color: #61dafb;
   border-bottom: 2px solid #61dafb;
 }
+/* Adicione no final de App.css */
+
+/* --- Correções para o React Big Calendar --- */
+
+/* Ajusta o cabeçalho dos dias para evitar sobreposição */
+.rbc-header {
+  padding: 10px 3px;
+  height: auto; /* Permite que a altura se ajuste ao conteúdo */
+  min-height: 50px; /* Garante uma altura mínima */
+}
+
+/* Garante que os eventos no calendário tenham uma cor de texto legível */
+.rbc-event {
+  background-color: #61dafb; /* Azul React para os eventos */
+  color: #282c34 !important; /* Cor do texto escura e !important para sobrescrever o padrão */
+  border: none;
+  border-radius: 5px;
+}
