@@ -11,34 +11,47 @@ const localizer = momentLocalizer(moment);
 function AgendaView() {
   const [agendamentos, setAgendamentos] = useState([]);
   const [mensagem, setMensagem] = useState({ texto: '', tipo: '' });
+  const [profissionais, setProfissionais] = useState([]);
+  const [servicos, setServicos] = useState([]);
+  const [clientes, setClientes] = useState([]);
 
+  // Busca todos os dados necessários quando o componente carrega
   useEffect(() => {
     const token = localStorage.getItem('authToken');
-    // Busca TODOS os agendamentos para o admin.
-    // O backend precisa de uma view que permita isso.
-    // Por enquanto, vamos assumir que /api/agendamentos/ retorna todos se o user for admin.
-    // Se não, teríamos que criar um endpoint /api/admin/all-agendamentos/
-    fetch(`${process.env.REACT_APP_API_URL}/api/agendamentos/`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Falha ao buscar agendamentos.');
-      }
-      return response.json();
-    })
-    .then(data => {
-      const eventosFormatados = data.map(ag => ({
-        id: ag.id,
-        title: `Serviço ID: ${ag.servico} - Cliente ID: ${ag.cliente}`, // Placeholder
-        start: new Date(ag.data_hora_inicio),
-        end: new Date(ag.data_hora_fim),
-        resource: `Profissional ID: ${ag.profissional}`, // Placeholder
-      }));
+    const headers = { 'Authorization': `Bearer ${token}` };
+
+    // Função para buscar dados de um endpoint
+    const fetchData = (url) => fetch(url, { headers }).then(res => res.json());
+
+    Promise.all([
+      fetchData(`${process.env.REACT_APP_API_URL}/api/agendamentos/`),
+      fetchData(`${process.env.REACT_APP_API_URL}/api/profissionais/`),
+      fetchData(`${process.env.REACT_APP_API_URL}/api/servicos/`),
+      fetchData(`${process.env.REACT_APP_API_URL}/api/clientes/`),
+    ])
+    .then(([agendamentosData, profissionaisData, servicosData, clientesData]) => {
+      setProfissionais(profissionaisData);
+      setServicos(servicosData);
+      setClientes(clientesData);
+
+      const eventosFormatados = agendamentosData.map(ag => {
+        const servico = servicosData.find(s => s.id === ag.servico);
+        const cliente = clientesData.find(c => c.id === ag.cliente);
+        const profissional = profissionaisData.find(p => p.id === ag.profissional);
+        
+        return {
+          id: ag.id,
+          title: `${servico?.nome || 'Serviço não encontrado'} - ${cliente?.nome || 'Cliente não encontrado'}`,
+          start: new Date(ag.data_hora_inicio),
+          end: new Date(ag.data_hora_fim),
+          resource: profissional?.nome || 'Profissional não encontrado',
+        };
+      });
       setAgendamentos(eventosFormatados);
     })
     .catch(error => {
-      setMensagem({ texto: error.message, tipo: 'erro' });
+      setMensagem({ texto: "Erro ao carregar dados da agenda.", tipo: 'erro' });
+      console.error("Erro ao buscar dados:", error);
     });
   }, []);
 
@@ -62,7 +75,7 @@ function AgendaView() {
     <div className="admin-section">
       <h2>Agenda de Atendimentos</h2>
       {mensagem.texto && <div className={`mensagem ${mensagem.tipo}`}>{mensagem.texto}</div>}
-      <div style={{ height: '70vh' }}>
+      <div style={{ height: '70vh', backgroundColor: 'white', color: 'black', padding: '1rem', borderRadius: '8px' }}>
         <Calendar
           localizer={localizer}
           events={agendamentos}
@@ -73,9 +86,11 @@ function AgendaView() {
           defaultView="week"
           views={['day', 'week', 'month']}
           
-          // ### AS NOVAS PROPRIEDADES ESTÃO AQUI ###
-          min={new Date(0, 0, 0, 6, 0, 0)} // Define a hora mínima para 06:00
-          max={new Date(0, 0, 0, 23, 0, 0)} // Define a hora máxima para 23:00
+          // ### CONFIGURAÇÃO FINAL E CORRETA ###
+          min={new Date(0, 0, 0, 6, 0, 0)}     // Hora mínima para 06:00
+          max={new Date(0, 0, 0, 23, 59, 59)} // Hora máxima para 23:59
+          step={15}                             // A grelha avança de 15 em 15 minutos
+          timeslots={4}                         // Mostra 4 "ranhuras" por hora (60/15 = 4)
         />
       </div>
     </div>
