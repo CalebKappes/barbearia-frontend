@@ -1,6 +1,7 @@
-// src/components/ProfissionalManager.js
+// src/pages/Admin/ProfissionalManager.js
 
 import React, { useState, useEffect } from 'react';
+// ### A CORREÇÃO ESTÁ AQUI ###
 import ConfirmationModal from '../../components/ConfirmationModal';
 
 function ProfissionalManager() {
@@ -78,7 +79,7 @@ function ProfissionalManager() {
   const handleEditClick = (profissional) => {
     setItemEmEdicao(profissional);
     setNome(profissional.nome);
-    setCelular(profissional.celular);
+    setCelular(profissional.celular || ''); // Garante que não seja null
     setIsFormVisible(true);
   };
   
