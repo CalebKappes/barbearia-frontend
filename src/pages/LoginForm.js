@@ -1,6 +1,8 @@
 // src/pages/LoginForm.js
 
 import React, { useState, useEffect } from 'react';
+// 1. Importe a sua imagem de logo
+import logoBarbearia from '../LogoShelock.jpg'; 
 
 function LoginForm({ onLoginSuccess, onNavigateToRegister }) {
   const [username, setUsername] = useState('');
@@ -39,16 +41,19 @@ function LoginForm({ onLoginSuccess, onNavigateToRegister }) {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Login da Barbearia</h1>
-        {mensagem.texto && (
-          <div className={`mensagem ${mensagem.tipo}`}>{mensagem.texto}</div>
-        )}
+        {/* 2. Adicione a tag de imagem para mostrar a logo */}
+        <img src={logoBarbearia} className="logo-login" alt="Logo da Barbearia" />
+        
         <form onSubmit={handleLogin} className="login-form">
+          <h1>Login da Barbearia</h1>
+          {mensagem.texto && (
+            <div className={`mensagem ${mensagem.tipo}`}>{mensagem.texto}</div>
+          )}
           <input type="text" placeholder="Nome de usuário" value={username} onChange={(e) => setUsername(e.target.value)} required/>
           <input type="password" placeholder="Senha" value={password} onChange={(e) => setPassword(e.target.value)} required/>
           <button type="submit">Entrar</button>
         </form>
-        {/* Este botão leva o usuário para a tela de cadastro */}
+
         <button onClick={onNavigateToRegister} className="link-botao">
           Não tem uma conta? Cadastre-se
         </button>

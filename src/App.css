@@ -1,93 +1,209 @@
 /* src/App.css */
 
-@import 'react-big-calendar/lib/css/react-big-calendar.css';
-/* Estilo geral do corpo da página */
+/* --- Reset Básico e Fontes --- */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+:root {
+  --background-dark: #1a1a1a;
+  --surface-dark: #2c2c2c;
+  --primary-accent: #00b8d4; /* Um azul-turquesa inspirado na sua logo */
+  --primary-accent-hover: #00e5ff;
+  --text-light: #f5f5f5;
+  --text-medium: #a0a0a0;
+  --error-color: #ff5252;
+  --success-color: #00c853;
+  --border-color: #444;
+}
+
 body {
-  background-color: #282c34;
-  color: white;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  background-color: var(--background-dark);
+  color: var(--text-light);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Container principal do nosso App */
+/* --- Estrutura Principal --- */
 .App {
   text-align: center;
 }
 
 .App-header {
+  background-color: var(--background-dark);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  justify-content: center; /* Centraliza o conteúdo verticalmente */
+  padding: 2rem;
+  box-sizing: border-box;
 }
 
-/* Container dos seletores e botão */
-.selecao-container {
+/* --- Cabeçalho e Navegação (Para páginas internas) --- */
+.header-nav {
+  position: absolute;
+  top: 20px;
+  right: 20px;
   display: flex;
-  gap: 1rem; /* Espaçamento entre os itens */
   align-items: center;
-  margin-bottom: 2rem;
-  flex-wrap: wrap; /* Permite que os itens quebrem a linha em telas menores */
-  justify-content: center;
+  gap: 1.5rem;
 }
 
-/* Estilo para os seletores (dropdown) e input de data */
-select, input[type="date"] {
-  padding: 0.5rem;
-  font-size: 1rem;
+.admin-link, .nav-link {
+  color: var(--primary-accent);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease-in-out;
+}
+
+.admin-link:hover, .nav-link:hover {
+  color: var(--primary-accent-hover);
+  text-decoration: underline;
+}
+
+.logout-botao {
+  background-color: var(--surface-dark);
+  color: var(--text-light);
+  border: 1px solid var(--border-color);
+  padding: 0.5rem 1rem;
+}
+
+.logout-botao:hover {
+  background-color: var(--border-color);
+}
+
+
+/* --- Formulários --- */
+.login-form, .admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  width: 100%;
+  max-width: 400px;
+  background-color: var(--surface-dark);
+  padding: 2.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.login-form h1, .admin-form h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.login-form input, .admin-form input, select, input[type="date"] {
+  background-color: var(--background-dark);
+  color: var(--text-light);
+  border: 1px solid var(--border-color);
   border-radius: 5px;
-  border: 1px solid #61dafb;
-  background-color: #3a3f4a;
-  color: white;
+  padding: 0.8rem;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-/* Estilo para os botões principais */
+.login-form input:focus, .admin-form input:focus, select:focus, input[type="date"]:focus {
+  outline: none;
+  border-color: var(--primary-accent);
+  box-shadow: 0 0 0 3px rgba(0, 184, 212, 0.3);
+}
+
 button {
-  padding: 0.6rem 1.2rem;
+  padding: 0.8rem 1.5rem;
   font-size: 1rem;
   font-weight: bold;
   border-radius: 5px;
   border: none;
   cursor: pointer;
-  background-color: #61dafb; /* Azul React */
-  color: #282c34;
-  transition: background-color 0.2s;
+  background-color: var(--primary-accent);
+  color: var(--background-dark);
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+button:hover:not(:disabled) {
+  background-color: var(--primary-accent-hover);
+  transform: translateY(-2px);
 }
 
 button:disabled {
   background-color: #555;
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
-button:not(:disabled):hover {
-  background-color: #a3ecff;
+.link-botao {
+  background: none;
+  border: none;
+  color: var(--primary-accent);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 1rem;
+  font-size: 0.9rem;
 }
 
-/* Botão de Sair, posicionado no canto */
-.logout-botao {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background-color: #444;
+.link-botao:hover {
+  color: var(--primary-accent-hover);
+}
+
+/* --- Logo --- */
+.logo-login {
+  width: 150px;
+  height: auto;
+  margin-bottom: 2rem;
+}
+
+/* --- Mensagens de Feedback --- */
+.mensagem {
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 5px;
+  text-align: center;
+  font-weight: 500;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.mensagem.sucesso {
+  background-color: var(--success-color);
   color: white;
 }
-.logout-botao:hover {
-  background-color: #666;
+
+.mensagem.erro {
+  background-color: var(--error-color);
+  color: white;
+}
+.mensagem.erro pre {
+  white-space: pre-wrap;
+  text-align: left;
 }
 
-/* Container dos resultados (horários) */
+
+/* --- Seção de Agendamento e Gestão --- */
+.main-container {
+  width: 90%;
+  max-width: 1100px; /* Aumenta a largura máxima para painéis maiores */
+  margin: 0 auto;
+}
+
+.selecao-container {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
 .resultados-container {
   margin-top: 2rem;
-  width: 80%;
+  width: 90%;
   max-width: 600px;
 }
 
-/* Lista de horários */
 .horarios-lista {
   list-style: none;
   padding: 0;
@@ -97,233 +213,94 @@ button:not(:disabled):hover {
   justify-content: center;
 }
 
-/* Botão de cada horário disponível */
 .horario-botao {
-  background-color: #1a8a3c;
+  background-color: var(--success-color);
   color: white;
 }
-.horario-botao:hover {
-  background-color: #2db956;
-}
-
-/* Formulário de login */
-.login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  width: 300px;
-}
-
-.login-form input {
-  width: 100%;
-}
-
-/* Estilo base da caixa de mensagem */
-.mensagem {
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-  width: 80%;
-  max-width: 500px;
-  border-radius: 5px;
-  text-align: center;
-  font-weight: bold;
-  font-size: 1rem;
-}
-
-/* Cor de fundo para mensagens de sucesso */
-.mensagem.sucesso {
-  background-color: #2db956;
-  color: white;
-}
-
-/* Cor de fundo para mensagens de erro */
-.mensagem.erro {
-  background-color: #e44c65;
-  color: white;
-}
-
-/* ### NOVO ESTILO PARA O LINK DE CADASTRO ### */
-.link-botao {
-  background: none;
-  border: none;
-  color: #61dafb; /* Azul React */
-  text-decoration: underline;
-  cursor: pointer;
-  padding: 1rem;
-  font-size: 0.9rem;
-}
-
-.link-botao:hover {
-  color: white;
-}
-/* Adicione no final de App.css */
-.header-nav {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.admin-link {
-  color: #61dafb;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-.admin-link:hover {
-  text-decoration: underline;
-}
-
-/* Ajuste no botão de logout para funcionar com o novo container */
-.logout-botao {
-  position: static; /* Remove o posicionamento absoluto */
-}
-/* Adicione no final de App.css */
 
 .admin-container {
-  background-color: #3a3f4a;
+  background-color: var(--surface-dark);
   padding: 2rem;
   border-radius: 10px;
-  width: 80%;
-  max-width: 800px;
-  margin-top: 2rem;
-}
-
-.admin-table {
   width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
+  box-sizing: border-box;
 }
-
-.admin-table th, .admin-table td {
-  border: 1px solid #444c56;
-  padding: 0.75rem;
-  text-align: left;
-}
-
-.admin-table th {
-  background-color: #282c34;
-}
-
-.admin-table td button {
-  margin-right: 0.5rem;
-  padding: 0.3rem 0.6rem;
-  font-size: 0.8rem;
-}
-
-.btn-edit {
-  background-color: #f0ad4e; /* Laranja */
-}
-
-.btn-delete {
-  background-color: #d9534f; /* Vermelho */
-}
-/* Adicione no final de App.css */
 
 .admin-section {
   width: 100%;
 }
 
-.admin-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  background-color: #444c56;
-  padding: 1.5rem;
-  border-radius: 8px;
-  margin-bottom: 2rem;
+.admin-divider {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 3rem 0;
 }
 
-.admin-form h3 {
-  margin-top: 0;
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.admin-table th, .admin-table td {
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.8rem;
   text-align: left;
 }
 
-.admin-form input {
-  width: 100%;
-  padding: 0.5rem;
-  font-size: 1rem;
-  border-radius: 5px;
-  border: 1px solid #61dafb;
-  background-color: #3a3f4a;
-  color: white;
-  box-sizing: border-box; /* Garante que o padding não aumente a largura total */
-}
-/* Adicione no final de App.css */
-.admin-form-toggle {
-  margin-bottom: 1rem;
-  text-align: right;
-}
-/* Adicione no final de App.css */
-
-.modal-overlay {
-  position: fixed; /* Fica fixo na tela */
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7); /* Fundo preto semi-transparente */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000; /* Garante que fique sobre todo o resto */
+.admin-table th {
+  color: var(--text-medium);
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 0.8rem;
 }
 
-.modal-content {
-  background-color: #3a3f4a;
-  padding: 2rem;
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+.btn-edit {
+  background-color: #f0ad4e;
+}
+
+.btn-delete {
+  background-color: var(--error-color);
+}
+
+/* --- Calendário --- */
+.rbc-calendar {
+  background-color: #fdfdfd;
+  color: var(--background-dark);
   border-radius: 8px;
-  text-align: center;
-  width: 90%;
-  max-width: 400px;
+  padding: 1rem;
 }
 
-.modal-actions {
-  margin-top: 1.5rem;
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
+.rbc-header {
+  padding: 10px 3px;
+  height: auto;
+  min-height: 50px;
 }
 
-.btn-confirm {
-  background-color: #d9534f; /* Vermelho, para ações destrutivas */
-}
-
-.btn-cancel {
-  background-color: #555;
-}
-/* Adicione no final de App.css */
-.admin-divider {
+.rbc-event {
+  background-color: var(--primary-accent);
+  color: var(--background-dark) !important;
   border: none;
-  border-top: 1px solid #444c56;
-  margin: 3rem 0;
+  border-radius: 5px;
+  font-weight: 500;
 }
-/* Adicione no final de App.css */
-.agendamento-cancelado {
-  background-color: #444c56;
-  color: #888;
-  text-decoration: line-through; /* Tacha o texto */
-}
-
-.agendamento-cancelado button {
-  display: none; /* Esconde o botão de cancelar */
-}
-/* Adicione no final de App.css */
 
 .admin-tabs {
   margin-bottom: 1rem;
-  border-bottom: 2px solid #444c56;
+  border-bottom: 2px solid var(--border-color);
   padding-bottom: 0.5rem;
-  width: 80%;
-  max-width: 800px;
+  width: 100%;
 }
 
 .tab-button {
   background: none;
   border: none;
-  color: #888;
+  color: var(--text-medium);
   padding: 0.5rem 1rem;
   font-size: 1.1rem;
   cursor: pointer;
@@ -331,24 +308,7 @@ button:not(:disabled):hover {
 }
 
 .tab-button.active {
-  color: #61dafb;
-  border-bottom: 2px solid #61dafb;
-}
-/* Adicione no final de App.css */
-
-/* --- Correções para o React Big Calendar --- */
-
-/* Ajusta o cabeçalho dos dias para evitar sobreposição */
-.rbc-header {
-  padding: 10px 3px;
-  height: auto; /* Permite que a altura se ajuste ao conteúdo */
-  min-height: 50px; /* Garante uma altura mínima */
-}
-
-/* Garante que os eventos no calendário tenham uma cor de texto legível */
-.rbc-event {
-  background-color: #61dafb; /* Azul React para os eventos */
-  color: #282c34 !important; /* Cor do texto escura e !important para sobrescrever o padrão */
-  border: none;
-  border-radius: 5px;
+  color: var(--primary-accent);
+  border-bottom: 2px solid var(--primary-accent);
+  font-weight: 700;
 }
