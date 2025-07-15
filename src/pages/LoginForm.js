@@ -1,7 +1,8 @@
 // src/pages/LoginForm.js
 
 import React, { useState, useEffect } from 'react';
-// A linha "import logoBarbearia from..." foi REMOVIDA
+// 1. REMOVA a linha de importação da logo daqui.
+// import logoBarbearia from '../LogoShelock.jpg'; 
 
 function LoginForm({ onLoginSuccess, onNavigateToRegister }) {
   const [username, setUsername] = useState('');
@@ -40,7 +41,7 @@ function LoginForm({ onLoginSuccess, onNavigateToRegister }) {
   return (
     <div className="App">
       <header className="App-header">
-        {/* O 'src' agora aponta diretamente para o arquivo na pasta 'public' */}
+        {/* 2. O 'src' agora aponta diretamente para o arquivo na pasta 'public' */}
         <img src="/LogoShelock.jpg" className="logo-login" alt="Logo da Barbearia" />
         
         <form onSubmit={handleLogin} className="login-form">
