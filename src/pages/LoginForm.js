@@ -1,10 +1,11 @@
 // src/pages/LoginForm.js
 
 import React, { useState, useEffect } from 'react';
-// 1. Importe a sua imagem de logo
-import logoBarbearia from '../LogoShelock.jpg'; 
+// 1. REMOVA a linha de importação da logo daqui.
+// import logoBarbearia from '../LogoShelock.jpg'; 
 
 function LoginForm({ onLoginSuccess, onNavigateToRegister }) {
+  // ... (toda a sua lógica de state e a função handleLogin continua igual) ...
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [mensagem, setMensagem] = useState({ texto: '', tipo: '' });
@@ -41,8 +42,8 @@ function LoginForm({ onLoginSuccess, onNavigateToRegister }) {
   return (
     <div className="App">
       <header className="App-header">
-        {/* 2. Adicione a tag de imagem para mostrar a logo */}
-        <img src={logoBarbearia} className="logo-login" alt="Logo da Barbearia" />
+        {/* 2. Altere o 'src' da imagem para um caminho público */}
+        <img src="/LogoShelock.jpg" className="logo-login" alt="Logo da Barbearia" />
         
         <form onSubmit={handleLogin} className="login-form">
           <h1>Login da Barbearia</h1>
