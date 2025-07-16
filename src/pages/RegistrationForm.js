@@ -1,18 +1,17 @@
-// src/components/RegistrationForm.js
-
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../services/api'; // Corrigido
 
-function RegistrationForm({ onNavigateToLogin }) {
+function RegistrationForm() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [nome, setNome] = useState('');
   const [celular, setCelular] = useState('');
-  
-  // O estado da mensagem já existia, mas vamos garantir que ele é usado corretamente
   const [mensagem, setMensagem] = useState({ texto: '', tipo: '' });
+  const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
-  // Efeito para limpar a mensagem
   useEffect(() => {
     if (mensagem.texto) {
       const timer = setTimeout(() => {
@@ -25,35 +24,30 @@ function RegistrationForm({ onNavigateToLogin }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     setMensagem({ texto: '', tipo: '' });
+    setErrors({});
 
     const dadosCadastro = { username, password, email, nome, celular };
 
-    fetch(`${process.env.REACT_APP_API_URL}/api/register/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dadosCadastro),
-    })
-    .then(async response => { // Tornamos a função async para ler o JSON do erro
-      if (response.ok) {
-        // Trocamos o alert() por uma mensagem de sucesso
+    api.post('/api/register/', dadosCadastro)
+    .then(() => {
         setMensagem({ texto: 'Cadastro realizado com sucesso! Redirecionando para o login...', tipo: 'sucesso' });
-        // Aguarda um pouco antes de navegar para o usuário poder ler a mensagem
         setTimeout(() => {
-          onNavigateToLogin();
+          navigate('/login');
         }, 2000);
-      } else {
-        const data = await response.json();
-        let errorString = '';
-        for (const key in data) {
-            errorString += `${key}: ${data[key].join(', ')}\n`;
-        }
-        setMensagem({ texto: errorString || 'Ocorreu um erro no cadastro.', tipo: 'erro' });
-      }
     })
     .catch(error => {
-      console.error('Erro no cadastro:', error);
-      setMensagem({ texto: 'Não foi possível conectar ao servidor.', tipo: 'erro' });
+      if (error.response && error.response.data) {
+        setErrors(error.response.data);
+        setMensagem({ texto: 'Por favor, corrija os erros abaixo.', tipo: 'erro' });
+      } else {
+        setMensagem({ texto: 'Não foi possível conectar ao servidor.', tipo: 'erro' });
+        console.error('Erro no cadastro:', error);
+      }
     });
+  };
+
+  const onNavigateToLogin = () => {
+    navigate('/login');
   };
 
   return (
@@ -61,19 +55,26 @@ function RegistrationForm({ onNavigateToLogin }) {
       <header className="App-header">
         <h1>Crie sua Conta</h1>
         
-        {/* O <pre> ajuda a formatar erros de múltiplas linhas */}
         {mensagem.texto && (
-          <div className={`mensagem ${mensagem.tipo}`}>
-            <pre>{mensagem.texto}</pre>
-          </div>
+          <div className={`mensagem ${mensagem.tipo}`}>{mensagem.texto}</div>
         )}
 
         <form onSubmit={handleSubmit} className="login-form">
           <input type="text" placeholder="Nome Completo" value={nome} onChange={(e) => setNome(e.target.value)} required />
+          {errors.nome && <div className="mensagem erro" style={{padding: '0.5rem', margin: '-0.5rem 0 0.5rem 0'}}><small>{errors.nome.join(', ')}</small></div>}
+          
           <input type="text" placeholder="Celular" value={celular} onChange={(e) => setCelular(e.target.value)} required />
+          {errors.celular && <div className="mensagem erro" style={{padding: '0.5rem', margin: '-0.5rem 0 0.5rem 0'}}><small>{errors.celular.join(', ')}</small></div>}
+
           <input type="email" placeholder="E-mail" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          {errors.email && <div className="mensagem erro" style={{padding: '0.5rem', margin: '-0.5rem 0 0.5rem 0'}}><small>{errors.email.join(', ')}</small></div>}
+          
           <input type="text" placeholder="Nome de usuário" value={username} onChange={(e) => setUsername(e.target.value)} required />
+          {errors.username && <div className="mensagem erro" style={{padding: '0.5rem', margin: '-0.5rem 0 0.5rem 0'}}><small>{errors.username.join(', ')}</small></div>}
+          
           <input type="password" placeholder="Senha" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          {errors.password && <div className="mensagem erro" style={{padding: '0.5rem', margin: '-0.5rem 0 0.5rem 0'}}><small>{errors.password.join(', ')}</small></div>}
+
           <button type="submit">Cadastrar</button>
         </form>
 

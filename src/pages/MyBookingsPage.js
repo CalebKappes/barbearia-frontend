@@ -1,27 +1,39 @@
-// src/components/MyBookingsPage.js
-
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+// import { Link } from 'react-router-dom'; // Removido pois não estava em uso
 import ConfirmationModal from '../components/ConfirmationModal';
+import api from '../services/api'; // Corrigido
 
-// Garanta que o componente recebe as props
-function MyBookingsPage({ servicos, profissionais }) {
+function MyBookingsPage() {
   const [agendamentos, setAgendamentos] = useState([]);
+  const [servicos, setServicos] = useState([]);
+  const [profissionais, setProfissionais] = useState([]);
   const [mensagem, setMensagem] = useState({ texto: '', tipo: '' });
-  
-  // 2. Novo estado para controlar o modal
   const [agendamentoParaCancelar, setAgendamentoParaCancelar] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const fetchAgendamentos = () => {
-    const token = localStorage.getItem('authToken');
-    fetch(`${process.env.REACT_APP_API_URL}/api/agendamentos/`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-    .then(response => response.json())
-    .then(data => setAgendamentos(data));
-  };
+  const fetchAgendamentos = useCallback(() => {
+    api.get('/api/agendamentos/')
+      .then(response => setAgendamentos(response.data))
+      .catch(error => console.error("Erro ao buscar agendamentos", error));
+  }, []);
 
-  useEffect(() => { fetchAgendamentos(); }, []);
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([
+      api.get('/api/agendamentos/'),
+      api.get('/api/servicos/'),
+      api.get('/api/profissionais/')
+    ]).then(([agendamentosRes, servicosRes, profissionaisRes]) => {
+      setAgendamentos(agendamentosRes.data);
+      setServicos(servicosRes.data);
+      setProfissionais(profissionaisRes.data);
+    }).catch(error => {
+      console.error("Erro ao carregar dados da página", error);
+      setMensagem({ texto: 'Erro ao carregar seus dados.', tipo: 'erro' });
+    }).finally(() => {
+      setLoading(false);
+    });
+  }, []);
 
   useEffect(() => {
     if (mensagem.texto) {
@@ -29,83 +41,78 @@ function MyBookingsPage({ servicos, profissionais }) {
       return () => clearTimeout(timer);
     }
   }, [mensagem]);
-  
-  // 3. A função agora apenas abre o modal
+
   const handleCancelBookingClick = (agendamentoId) => {
     setAgendamentoParaCancelar(agendamentoId);
   };
-  
-  // 4. A lógica de apagar foi movida para esta nova função
+
   const confirmCancel = () => {
-    const token = localStorage.getItem('authToken');
-    fetch(`${process.env.REACT_APP_API_URL}/api/agendamentos/${agendamentoParaCancelar}/cancelar/`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-    .then(response => {
-      if (response.ok) {
+    api.post(`/api/agendamentos/${agendamentoParaCancelar}/cancelar/`)
+      .then(() => {
         setMensagem({ texto: 'Agendamento cancelado com sucesso!', tipo: 'sucesso' });
         fetchAgendamentos();
-      } else {
+      })
+      .catch(() => {
         setMensagem({ texto: 'Erro ao cancelar o agendamento.', tipo: 'erro' });
-      }
-    })
-    .finally(() => {
-      setAgendamentoParaCancelar(null); // Fecha o modal
-    });
+      })
+      .finally(() => {
+        setAgendamentoParaCancelar(null);
+      });
   };
 
   const formatarStatus = (status) => {
     const statusMap = { 'AGD': 'Agendado', 'CAN': 'Cancelado', 'FIN': 'Finalizado' };
     return statusMap[status] || status;
   };
+  
+  const getNome = (lista, id) => {
+    const item = lista.find(i => i.id === id);
+    return item ? item.nome : 'Carregando...';
+  }
 
   return (
     <div className="App">
       <header className="App-header">
-        <div className="header-nav">
-          <Link to="/" className="admin-link">Fazer Novo Agendamento</Link>
-        </div>
         <h1>Meus Agendamentos</h1>
         {mensagem.texto && <div className={`mensagem ${mensagem.tipo}`}>{mensagem.texto}</div>}
         <div className="admin-container">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Serviço</th>
-                <th>Profissional</th>
-                <th>Data e Hora</th>
-                <th>Status</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {agendamentos.length > 0 ? agendamentos.map(ag => (
-                <tr key={ag.id} className={ag.status === 'CAN' ? 'agendamento-cancelado' : ''}>
-                  <td>{servicos.find(s => s.id === ag.servico)?.nome || '...'}</td>
-                  <td>{profissionais.find(p => p.id === ag.profissional)?.nome || '...'}</td>
-                  <td>{new Date(ag.data_hora_inicio).toLocaleString('pt-BR')}</td>
-                  <td>{formatarStatus(ag.status)}</td>
-                  <td>
-                    {ag.status === 'AGD' && (
-                      // O botão agora chama a função que abre o modal
-                      <button onClick={() => handleCancelBookingClick(ag.id)} className="btn-delete">
-                        Cancelar
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              )) : (
+          {loading ? <p>Carregando agendamentos...</p> : (
+            <table className="admin-table">
+              <thead>
                 <tr>
-                    <td colSpan="5">Você ainda não possui agendamentos.</td>
+                  <th>Serviço</th>
+                  <th>Profissional</th>
+                  <th>Data e Hora</th>
+                  <th>Status</th>
+                  <th>Ações</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {agendamentos.length > 0 ? agendamentos.map(ag => (
+                  <tr key={ag.id} className={ag.status === 'CAN' ? 'agendamento-cancelado' : ''}>
+                    <td>{getNome(servicos, ag.servico)}</td>
+                    <td>{getNome(profissionais, ag.profissional)}</td>
+                    <td>{new Date(ag.data_hora_inicio).toLocaleString('pt-BR')}</td>
+                    <td>{formatarStatus(ag.status)}</td>
+                    <td>
+                      {ag.status === 'AGD' && (
+                        <button onClick={() => handleCancelBookingClick(ag.id)} className="btn-delete">
+                          Cancelar
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                )) : (
+                  <tr>
+                      <td colSpan="5">Você ainda não possui agendamentos.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          )}
         </div>
       </header>
 
-      {/* 5. Renderizamos nosso modal de confirmação aqui */}
       <ConfirmationModal
         isOpen={agendamentoParaCancelar !== null}
         message="Você tem certeza que quer cancelar este agendamento?"
@@ -116,20 +123,4 @@ function MyBookingsPage({ servicos, profissionais }) {
   );
 }
 
-// O Wrapper continua o mesmo, passando os dados necessários
-function MyBookingsPageWrapper() {
-    const [servicos, setServicos] = useState([]);
-    const [profissionais, setProfissionais] = useState([]);
-    useEffect(() => {
-        const token = localStorage.getItem('authToken');
-        if (token) {
-          fetch(`${process.env.REACT_APP_API_URL}/api/servicos/`, { headers: { 'Authorization': `Bearer ${token}` }})
-              .then(res => res.json()).then(data => setServicos(data));
-          fetch(`${process.env.REACT_APP_API_URL}/api/profissionais/`, { headers: { 'Authorization': `Bearer ${token}` }})
-              .then(res => res.json()).then(data => setProfissionais(data));
-        }
-    }, []);
-    return <MyBookingsPage servicos={servicos} profissionais={profissionais} />
-}
-
-export default MyBookingsPageWrapper;
+export default MyBookingsPage;

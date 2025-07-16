@@ -1,19 +1,21 @@
-// src/index.js
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
+import { BrowserRouter } from 'react-router-dom';
 import App from './App';
-import { BrowserRouter } from 'react-router-dom'; // Importe o BrowserRouter
-import * as serviceWorkerRegistration from './serviceWorkerRegistration'; // Importe o registrador
+import { AuthProvider } from './context/AuthContext'; // 1. Importe o AuthProvider
+import './index.css';
+import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    {/* Envolva o <App /> com o BrowserRouter */}
     <BrowserRouter>
-      <App />
+      {/* 2. Envolva o App com o AuthProvider */}
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>
 );
-// Ativa o registro do Service Worker
+
 serviceWorkerRegistration.register();

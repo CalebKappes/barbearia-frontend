@@ -1,32 +1,24 @@
-// src/pages/Admin/ProfissionalManager.js
-
 import React, { useState, useEffect } from 'react';
 import ConfirmationModal from '../../components/ConfirmationModal';
+import api from '../../services/api'; // Corrigido
 
 function ProfissionalManager() {
   const [profissionais, setProfissionais] = useState([]);
-  
-  // Estados para o formulário
   const [nome, setNome] = useState('');
   const [celular, setCelular] = useState('');
-  
-  // Estados de controle da UI
   const [mensagem, setMensagem] = useState({ texto: '', tipo: '' });
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [itemParaDeletar, setItemParaDeletar] = useState(null);
   const [itemEmEdicao, setItemEmEdicao] = useState(null);
 
-  // --- Funções de API ---
   const fetchProfissionais = () => {
-    const token = localStorage.getItem('authToken');
-    fetch(`${process.env.REACT_APP_API_URL}/api/profissionais/`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-    .then(response => response.json())
-    .then(data => setProfissionais(data));
+    api.get('/api/profissionais/')
+      .then(response => setProfissionais(response.data))
+      .catch(error => console.error("Erro ao buscar profissionais", error));
   };
 
   useEffect(() => { fetchProfissionais(); }, []);
+
   useEffect(() => {
     if (mensagem.texto) {
       const timer = setTimeout(() => setMensagem({ texto: '', tipo: '' }), 3000);
@@ -36,49 +28,27 @@ function ProfissionalManager() {
 
   const handleSubmitForm = (e) => {
     e.preventDefault();
-    itemEmEdicao ? handleUpdate() : handleCreate();
-  };
+    const profissionalData = { nome, celular };
+    
+    const request = itemEmEdicao
+      ? api.put(`/api/profissionais/${itemEmEdicao.id}/`, profissionalData)
+      : api.post('/api/profissionais/', profissionalData);
 
-  const handleCreate = () => {
-    const token = localStorage.getItem('authToken');
-    fetch(`${process.env.REACT_APP_API_URL}/api/profissionais/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify({ nome, celular })
-    })
-    .then(response => {
-      if (response.ok) {
-        setMensagem({ texto: 'Profissional criado com sucesso!', tipo: 'sucesso' });
+    request
+      .then(() => {
+        setMensagem({ texto: `Profissional ${itemEmEdicao ? 'atualizado' : 'criado'} com sucesso!`, tipo: 'sucesso' });
         fetchProfissionais();
         resetForm();
-      } else {
-        setMensagem({ texto: 'Erro ao criar profissional.', tipo: 'erro' });
-      }
-    });
-  };
-  
-  const handleUpdate = () => {
-    const token = localStorage.getItem('authToken');
-    fetch(`${process.env.REACT_APP_API_URL}/api/profissionais/${itemEmEdicao.id}/`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify({ nome, celular })
-    })
-    .then(response => {
-      if (response.ok) {
-        setMensagem({ texto: 'Profissional atualizado com sucesso!', tipo: 'sucesso' });
-        fetchProfissionais();
-        resetForm();
-      } else {
-        setMensagem({ texto: 'Erro ao atualizar profissional.', tipo: 'erro' });
-      }
-    });
+      })
+      .catch(() => {
+        setMensagem({ texto: `Erro ao ${itemEmEdicao ? 'atualizar' : 'criar'} profissional.`, tipo: 'erro' });
+      });
   };
 
   const handleEditClick = (profissional) => {
     setItemEmEdicao(profissional);
     setNome(profissional.nome);
-    setCelular(profissional.celular || ''); // Garante que não seja null
+    setCelular(profissional.celular || '');
     setIsFormVisible(true);
   };
   
@@ -91,20 +61,15 @@ function ProfissionalManager() {
   const handleDeleteClick = (id) => { setItemParaDeletar(id); };
 
   const confirmDelete = () => {
-    const token = localStorage.getItem('authToken');
-    fetch(`${process.env.REACT_APP_API_URL}/api/profissionais/${itemParaDeletar}/`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${token}` },
-    })
-    .then(response => {
-      if (response.ok) {
+    api.delete(`/api/profissionais/${itemParaDeletar}/`)
+      .then(() => {
         setMensagem({ texto: 'Profissional apagado com sucesso!', tipo: 'sucesso' });
         fetchProfissionais();
-      } else {
+      })
+      .catch(() => {
         setMensagem({ texto: 'Erro ao apagar profissional.', tipo: 'erro' });
-      }
-    })
-    .finally(() => { setItemParaDeletar(null); });
+      })
+      .finally(() => { setItemParaDeletar(null); });
   };
 
   return (

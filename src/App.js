@@ -1,20 +1,34 @@
-// src/App.js
-
 import React from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
 import './App.css';
 
-import Header from './components/Header'; // Importamos nosso novo Header
+import Header from './components/Header';
 import LoginForm from './pages/LoginForm';
 import Scheduler from './pages/Scheduler';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import RegistrationForm from './pages/RegistrationForm';
 import MyBookingsPage from './pages/MyBookingsPage';
 
+// Componente para proteger rotas que exigem login
+const PrivateRoute = ({ children }) => {
+  const { authToken } = useAuth();
+  return authToken ? children : <Navigate to="/login" />;
+};
+
+// Componente para proteger rotas que exigem ser admin
+const AdminRoute = ({ children }) => {
+    const { user, authToken } = useAuth();
+    if (!authToken) {
+        return <Navigate to="/login" />;
+    }
+    return user && user.is_staff ? children : <Navigate to="/" />;
+};
+
 function App() {
   const location = useLocation();
-  const token = localStorage.getItem('authToken');
-
+  const { authToken } = useAuth();
+  
   // Não mostra o Header nas páginas de login e registo
   const showHeader = location.pathname !== '/login' && location.pathname !== '/register';
 
@@ -23,12 +37,19 @@ function App() {
       {showHeader && <Header />}
       <main className="main-content">
         <Routes>
-          <Route path="/login" element={!token ? <LoginForm /> : <Navigate to="/" />} />
-          <Route path="/register" element={!token ? <RegistrationForm /> : <Navigate to="/" />} />
+          {/* Rotas Públicas */}
+          <Route path="/login" element={!authToken ? <LoginForm /> : <Navigate to="/" />} />
+          <Route path="/register" element={!authToken ? <RegistrationForm /> : <Navigate to="/" />} />
           
-          <Route path="/" element={token ? <Scheduler /> : <Navigate to="/login" />} />
-          <Route path="/meus-agendamentos" element={token ? <MyBookingsPage /> : <Navigate to="/login" />} />
-          <Route path="/admin" element={token ? <AdminDashboard /> : <Navigate to="/login" />} />
+          {/* Rotas Privadas */}
+          <Route path="/" element={<PrivateRoute><Scheduler /></PrivateRoute>} />
+          <Route path="/meus-agendamentos" element={<PrivateRoute><MyBookingsPage /></PrivateRoute>} />
+          
+          {/* Rota Privada de Admin */}
+          <Route path="/admin/*" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+
+          {/* Rota de fallback */}
+          <Route path="*" element={<Navigate to={authToken ? "/" : "/login"} />} />
         </Routes>
       </main>
     </div>
@@ -36,4 +57,3 @@ function App() {
 }
 
 export default App;
-

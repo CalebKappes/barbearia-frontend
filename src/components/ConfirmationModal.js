@@ -1,15 +1,8 @@
-// src/components/ConfirmationModal.js
-
 import React from 'react';
 
-// O modal recebe:
-// - isOpen: se ele deve estar visível ou não
-// - message: a pergunta a ser feita (ex: "Tem certeza?")
-// - onConfirm: a função a ser executada se o usuário clicar em "Sim"
-// - onCancel: a função a ser executada se o usuário clicar em "Não"
 function ConfirmationModal({ isOpen, message, onConfirm, onCancel }) {
   if (!isOpen) {
-    return null; // Se não estiver aberto, não renderiza nada
+    return null;
   }
 
   return (

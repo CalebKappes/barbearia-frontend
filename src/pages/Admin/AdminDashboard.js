@@ -1,14 +1,11 @@
-// src/pages/Admin/AdminDashboard.js
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ServicoManager from './ServicoManager';
 import ProfissionalManager from './ProfissionalManager';
-import AgendaView from './AgendaView'; // 1. Importamos a nova visão de agenda
+import AgendaView from './AgendaView';
 
 function AdminDashboard() {
-  // 2. Novo estado para controlar qual aba está ativa
-  const [activeTab, setActiveTab] = useState('gerenciar'); // 'gerenciar' ou 'agenda'
+  const [activeTab, setActiveTab] = useState('gerenciar');
 
   return (
     <div className="App">
@@ -18,7 +15,6 @@ function AdminDashboard() {
         </div>
         <h1>Painel de Gestão</h1>
 
-        {/* 3. Botões para alternar entre as abas */}
         <div className="admin-tabs">
           <button 
             className={`tab-button ${activeTab === 'gerenciar' ? 'active' : ''}`}
@@ -35,7 +31,6 @@ function AdminDashboard() {
         </div>
         
         <div className="admin-container">
-          {/* 4. Renderização condicional baseada na aba ativa */}
           {activeTab === 'gerenciar' ? (
             <>
               <ServicoManager />
@@ -46,7 +41,6 @@ function AdminDashboard() {
             <AgendaView />
           )}
         </div>
-
       </header>
     </div>
   );

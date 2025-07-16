@@ -1,9 +1,8 @@
-// src/pages/Admin/AgendaView.js
-
 import React, { useState, useEffect } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'moment/locale/pt-br';
+import api from '../../services/api'; // Corrigido
 
 moment.locale('pt-br');
 const localizer = momentLocalizer(moment);
@@ -11,36 +10,19 @@ const localizer = momentLocalizer(moment);
 function AgendaView() {
   const [agendamentos, setAgendamentos] = useState([]);
   const [mensagem, setMensagem] = useState({ texto: '', tipo: '' });
-  const [profissionais, setProfissionais] = useState([]);
-  const [servicos, setServicos] = useState([]);
-  const [clientes, setClientes] = useState([]);
-
- // src/pages/Admin/AgendaView.js
-
-// ... (imports e início do componente continuam os mesmos) ...
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    const headers = { 'Authorization': `Bearer ${token}` };
-
-    const fetchData = (url) => fetch(url, { headers }).then(res => {
-        if (!res.ok) { throw new Error(`Falha ao buscar ${url}`); }
-        return res.json();
-    });
-
-    // ### A CORREÇÃO ESTÁ AQUI ###
-    // Trocamos a URL de 'agendamentos' para a nova URL de admin 'admin/agenda'
     Promise.all([
-      fetchData(`${process.env.REACT_APP_API_URL}/api/admin/agenda/`),
-      fetchData(`${process.env.REACT_APP_API_URL}/api/profissionais/`),
-      fetchData(`${process.env.REACT_APP_API_URL}/api/servicos/`),
-      fetchData(`${process.env.REACT_APP_API_URL}/api/clientes/`),
+      api.get('/api/admin/agenda/'),
+      api.get('/api/profissionais/'),
+      api.get('/api/servicos/'),
+      api.get('/api/clientes/'),
     ])
-    .then(([agendamentosData, profissionaisData, servicosData, clientesData]) => {
-      // ... (o resto da lógica para formatar os eventos continua a mesma)
-      setProfissionais(profissionaisData);
-      setServicos(servicosData);
-      setClientes(clientesData);
+    .then(([agendamentosRes, profissionaisRes, servicosRes, clientesRes]) => {
+      const agendamentosData = agendamentosRes.data;
+      const profissionaisData = profissionaisRes.data;
+      const servicosData = servicosRes.data;
+      const clientesData = clientesRes.data;
 
       const eventosFormatados = agendamentosData.map(ag => {
         const servico = servicosData.find(s => s.id === ag.servico);
@@ -62,9 +44,6 @@ function AgendaView() {
       console.error("Erro ao buscar dados:", error);
     });
   }, []);
-
-// ... (o resto do componente AgendaView.js continua o mesmo) ...
-
 
   const messages = {
     allDay: 'Dia Inteiro',
@@ -96,12 +75,10 @@ function AgendaView() {
           messages={messages}
           defaultView="week"
           views={['day', 'week', 'month']}
-          
-          // ### CONFIGURAÇÃO FINAL E CORRETA ###
-          min={new Date(0, 0, 0, 6, 0, 0)}     // Hora mínima para 06:00
-          max={new Date(0, 0, 0, 23, 59, 59)} // Hora máxima para 23:59
-          step={15}                             // A grelha avança de 15 em 15 minutos
-          timeslots={4}                         // Mostra 4 "ranhuras" por hora (60/15 = 4)
+          min={new Date(0, 0, 0, 6, 0, 0)}
+          max={new Date(0, 0, 0, 23, 59, 59)}
+          step={15}
+          timeslots={4}
         />
       </div>
     </div>

@@ -1,13 +1,14 @@
-// src/pages/LoginForm.js
-
 import React, { useState, useEffect } from 'react';
-// 1. REMOVA a linha de importação da logo daqui.
-// import logoBarbearia from '../LogoShelock.jpg'; 
+import { useNavigate } from 'react-router-dom';
+import api from '../services/api'; // Corrigido
+import { useAuth } from '../context/AuthContext';
 
-function LoginForm({ onLoginSuccess, onNavigateToRegister }) {
+function LoginForm() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [mensagem, setMensagem] = useState({ texto: '', tipo: '' });
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   useEffect(() => {
     if (mensagem.texto) {
@@ -20,28 +21,30 @@ function LoginForm({ onLoginSuccess, onNavigateToRegister }) {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    fetch(`${process.env.REACT_APP_API_URL}/api/token/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.access) {
-        onLoginSuccess(data.access);
-      } else {
-        setMensagem({ texto: 'Nome de usuário ou senha inválidos.', tipo: 'erro' });
+    
+    api.post('/api/token/', { username, password })
+    .then(response => {
+      if (response.data.access) {
+        login(response.data.access);
       }
     })
     .catch(error => {
-      setMensagem({ texto: 'Não foi possível conectar ao servidor.', tipo: 'erro' });
+      if (error.response && error.response.status === 401) {
+        setMensagem({ texto: 'Nome de usuário ou senha inválidos.', tipo: 'erro' });
+      } else {
+        setMensagem({ texto: 'Não foi possível conectar ao servidor.', tipo: 'erro' });
+      }
+      console.error('Erro de login:', error);
     });
   };
+
+  const onNavigateToRegister = () => {
+    navigate('/register');
+  }
 
   return (
     <div className="App">
       <header className="App-header">
-        {/* 2. O 'src' agora aponta diretamente para o arquivo na pasta 'public' */}
         <img src="/LogoShelock.jpg" className="logo-login" alt="Logo da Barbearia" />
         
         <form onSubmit={handleLogin} className="login-form">
