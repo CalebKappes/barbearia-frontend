@@ -1,314 +1,350 @@
+/* VERSÃO CORRIGIDA - SEM CARACTERES INVÁLIDOS */
 /* src/App.css */
 
 /* --- Reset Básico e Fontes --- */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
 
 :root {
-  --background-dark: #1a1a1a;
-  --surface-dark: #2c2c2c;
-  --primary-accent: #00b8d4; /* Um azul-turquesa inspirado na sua logo */
-  --primary-accent-hover: #00e5ff;
-  --text-light: #f5f5f5;
-  --text-medium: #a0a0a0;
-  --error-color: #ff5252;
-  --success-color: #00c853;
-  --border-color: #444;
+    --background-dark: #1a1a1a;
+    --surface-dark: #2c2c2c;
+    --primary-accent: #00b8d4;
+    --primary-accent-hover: #00e5ff;
+    --text-light: #f5f5f5;
+    --text-medium: #a0a0a0;
+    --error-color: #ff5252;
+    --success-color: #00c853;
+    --border-color: #444;
 }
 
 body {
-  margin: 0;
-  font-family: 'Roboto', sans-serif;
-  background-color: var(--background-dark);
-  color: var(--text-light);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--background-dark);
+    color: var(--text-light);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* --- Cabeçalho Principal (Header) --- */
+.app-header-main {
+    background-color: var(--surface-dark);
+    padding: 10px 5%;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.logo-img {
+    height: 50px;
+    width: auto;
+    margin-right: 15px;
+}
+
+.logo-text {
+    color: var(--text-light);
+    font-size: 1.5rem;
+    font-weight: 700;
 }
 
 /* --- Estrutura Principal --- */
 .App {
-  text-align: center;
+    text-align: center;
 }
 
 .App-header {
-  background-color: var(--background-dark);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center; /* Centraliza o conteúdo verticalmente */
-  padding: 2rem;
-  box-sizing: border-box;
+    background-color: var(--background-dark);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    box-sizing: border-box;
 }
 
 /* --- Cabeçalho e Navegação (Para páginas internas) --- */
 .header-nav {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
 }
 
 .admin-link, .nav-link {
-  color: var(--primary-accent);
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s ease-in-out;
+    color: var(--primary-accent);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease-in-out;
 }
 
 .admin-link:hover, .nav-link:hover {
-  color: var(--primary-accent-hover);
-  text-decoration: underline;
+    color: var(--primary-accent-hover);
+    text-decoration: underline;
 }
 
 .logout-botao {
-  background-color: var(--surface-dark);
-  color: var(--text-light);
-  border: 1px solid var(--border-color);
-  padding: 0.5rem 1rem;
+    background-color: var(--surface-dark);
+    color: var(--text-light);
+    border: 1px solid var(--border-color);
+    padding: 0.5rem 1rem;
 }
 
 .logout-botao:hover {
-  background-color: var(--border-color);
+    background-color: var(--border-color);
 }
 
 
 /* --- Formulários --- */
 .login-form, .admin-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
-  width: 100%;
-  max-width: 400px;
-  background-color: var(--surface-dark);
-  padding: 2.5rem;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    width: 100%;
+    max-width: 400px;
+    background-color: var(--surface-dark);
+    padding: 2.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
 
 .login-form h1, .admin-form h3 {
-  margin-top: 0;
-  margin-bottom: 1rem;
-  font-weight: 500;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-weight: 500;
 }
 
 .login-form input, .admin-form input, select, input[type="date"] {
-  background-color: var(--background-dark);
-  color: var(--text-light);
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-  padding: 0.8rem;
-  font-size: 1rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
+    background-color: var(--background-dark);
+    color: var(--text-light);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: 0.8rem;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .login-form input:focus, .admin-form input:focus, select:focus, input[type="date"]:focus {
-  outline: none;
-  border-color: var(--primary-accent);
-  box-shadow: 0 0 0 3px rgba(0, 184, 212, 0.3);
+    outline: none;
+    border-color: var(--primary-accent);
+    box-shadow: 0 0 0 3px rgba(0, 184, 212, 0.3);
 }
 
 button {
-  padding: 0.8rem 1.5rem;
-  font-size: 1rem;
-  font-weight: bold;
-  border-radius: 5px;
-  border: none;
-  cursor: pointer;
-  background-color: var(--primary-accent);
-  color: var(--background-dark);
-  transition: background-color 0.2s, transform 0.1s;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    background-color: var(--primary-accent);
+    color: var(--background-dark);
+    transition: background-color 0.2s, transform 0.1s;
 }
 
 button:hover:not(:disabled) {
-  background-color: var(--primary-accent-hover);
-  transform: translateY(-2px);
+    background-color: var(--primary-accent-hover);
+    transform: translateY(-2px);
 }
 
 button:disabled {
-  background-color: #555;
-  cursor: not-allowed;
-  opacity: 0.7;
+    background-color: #555;
+    cursor: not-allowed;
+    opacity: 0.7;
 }
 
 .link-botao {
-  background: none;
-  border: none;
-  color: var(--primary-accent);
-  text-decoration: underline;
-  cursor: pointer;
-  padding: 1rem;
-  font-size: 0.9rem;
+    background: none;
+    border: none;
+    color: var(--primary-accent);
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 1rem;
+    font-size: 0.9rem;
 }
 
 .link-botao:hover {
-  color: var(--primary-accent-hover);
+    color: var(--primary-accent-hover);
 }
 
 /* --- Logo --- */
 .logo-login {
-  width: 150px;
-  height: auto;
-  margin-bottom: 2rem;
+    width: 150px;
+    height: auto;
+    margin-bottom: 2rem;
 }
 
 /* --- Mensagens de Feedback --- */
 .mensagem {
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-  width: 100%;
-  max-width: 400px;
-  border-radius: 5px;
-  text-align: center;
-  font-weight: 500;
-  font-size: 1rem;
-  box-sizing: border-box;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    width: 100%;
+    max-width: 400px;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: 500;
+    font-size: 1rem;
+    box-sizing: border-box;
 }
 
 .mensagem.sucesso {
-  background-color: var(--success-color);
-  color: white;
+    background-color: var(--success-color);
+    color: white;
 }
 
 .mensagem.erro {
-  background-color: var(--error-color);
-  color: white;
+    background-color: var(--error-color);
+    color: white;
 }
 .mensagem.erro pre {
-  white-space: pre-wrap;
-  text-align: left;
+    white-space: pre-wrap;
+    text-align: left;
 }
 
 
 /* --- Seção de Agendamento e Gestão --- */
 .main-container {
-  width: 90%;
-  max-width: 1100px; /* Aumenta a largura máxima para painéis maiores */
-  margin: 0 auto;
+    width: 90%;
+    max-width: 1100px;
+    margin: 0 auto;
 }
 
 .selecao-container {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-  justify-content: center;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .resultados-container {
-  margin-top: 2rem;
-  width: 90%;
-  max-width: 600px;
+    margin-top: 2rem;
+    width: 90%;
+    max-width: 600px;
 }
 
 .horarios-lista {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  justify-content: center;
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
 }
 
 .horario-botao {
-  background-color: var(--success-color);
-  color: white;
+    background-color: var(--success-color);
+    color: white;
 }
 
 .admin-container {
-  background-color: var(--surface-dark);
-  padding: 2rem;
-  border-radius: 10px;
-  width: 100%;
-  box-sizing: border-box;
+    background-color: var(--surface-dark);
+    padding: 2rem;
+    border-radius: 10px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .admin-section {
-  width: 100%;
+    width: 100%;
 }
 
 .admin-divider {
-  border: none;
-  border-top: 1px solid var(--border-color);
-  margin: 3rem 0;
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 3rem 0;
 }
 
 .admin-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1.5rem;
-  font-size: 0.9rem;
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
 }
 
 .admin-table th, .admin-table td {
-  border-bottom: 1px solid var(--border-color);
-  padding: 0.8rem;
-  text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.8rem;
+    text-align: left;
 }
 
 .admin-table th {
-  color: var(--text-medium);
-  font-weight: 500;
-  text-transform: uppercase;
-  font-size: 0.8rem;
+    color: var(--text-medium);
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 0.8rem;
 }
 
 .admin-table tr:last-child td {
-  border-bottom: none;
+    border-bottom: none;
 }
 
 .btn-edit {
-  background-color: #f0ad4e;
+    background-color: #f0ad4e;
 }
 
 .btn-delete {
-  background-color: var(--error-color);
+    background-color: var(--error-color);
 }
 
 /* --- Calendário --- */
 .rbc-calendar {
-  background-color: #fdfdfd;
-  color: var(--background-dark);
-  border-radius: 8px;
-  padding: 1rem;
+    background-color: #fdfdfd;
+    color: var(--background-dark);
+    border-radius: 8px;
+    padding: 1rem;
 }
 
 .rbc-header {
-  padding: 10px 3px;
-  height: auto;
-  min-height: 50px;
+    padding: 10px 3px;
+    height: auto;
+    min-height: 50px;
 }
 
 .rbc-event {
-  background-color: var(--primary-accent);
-  color: var(--background-dark) !important;
-  border: none;
-  border-radius: 5px;
-  font-weight: 500;
+    background-color: var(--primary-accent);
+    color: var(--background-dark) !important;
+    border: none;
+    border-radius: 5px;
+    font-weight: 500;
 }
 
 .admin-tabs {
-  margin-bottom: 1rem;
-  border-bottom: 2px solid var(--border-color);
-  padding-bottom: 0.5rem;
-  width: 100%;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    width: 100%;
 }
 
 .tab-button {
-  background: none;
-  border: none;
-  color: var(--text-medium);
-  padding: 0.5rem 1rem;
-  font-size: 1.1rem;
-  cursor: pointer;
-  margin-right: 1rem;
+    background: none;
+    border: none;
+    color: var(--text-medium);
+    padding: 0.5rem 1rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+    margin-right: 1rem;
 }
 
 .tab-button.active {
-  color: var(--primary-accent);
-  border-bottom: 2px solid var(--primary-accent);
-  font-weight: 700;
+    color: var(--primary-accent);
+    border-bottom: 2px solid var(--primary-accent);
+    font-weight: 700;
 }

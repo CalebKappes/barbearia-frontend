@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ConfirmationModal from '../components/ConfirmationModal';
-import api from '../services/api'; // Corrigido
+import api from '../services/api';
 
 function Scheduler() {
     const [servicos, setServicos] = useState([]);
@@ -18,13 +18,13 @@ function Scheduler() {
             try {
                 const [servicosRes, profissionaisRes] = await Promise.all([
                     api.get('/api/servicos/'),
-                    api.get('/api/profissionais/')
+                    api.get('/api/barbeiros/')
                 ]);
                 setServicos(servicosRes.data);
                 setProfissionais(profissionaisRes.data);
             } catch (error) {
-                console.error("Erro ao buscar dados iniciais", error);
-                setMensagem({ texto: 'Erro ao carregar serviços ou profissionais.', tipo: 'erro' });
+                console.error("Erro ao buscar dados iniciais", error.response || error);
+                setMensagem({ texto: 'Erro ao carregar dados do servidor.', tipo: 'erro' });
             }
         };
 
@@ -33,7 +33,7 @@ function Scheduler() {
 
     useEffect(() => {
         if (mensagem.texto) {
-            const timer = setTimeout(() => { setMensagem({ texto: '', tipo: '' }); }, 3000);
+            const timer = setTimeout(() => { setMensagem({ texto: '', tipo: '' }); }, 5000);
             return () => clearTimeout(timer);
         }
     }, [mensagem]);
@@ -46,14 +46,17 @@ function Scheduler() {
         setCarregando(true);
         setHorariosDisponiveis([]);
         
-        const url = `/api/profissionais/${profissionalSelecionado}/horarios_disponiveis/?data=${dataSelecionada}&servico_id=${servicoSelecionado}`;
+        const url = `/api/barbeiros/${profissionalSelecionado}/horarios_disponiveis/?data=${dataSelecionada}&servico_id=${servicoSelecionado}`;
         
         api.get(url)
             .then(response => {
                 setHorariosDisponiveis(response.data);
+                if (response.data.length === 0) {
+                    setMensagem({ texto: 'Nenhum horário disponível para esta data.', tipo: 'erro' });
+                }
             })
             .catch(error => {
-                console.error("Erro ao verificar disponibilidade", error);
+                console.error("Erro ao verificar disponibilidade", error.response || error);
                 setMensagem({ texto: 'Não foi possível buscar os horários.', tipo: 'erro' });
             })
             .finally(() => {
@@ -69,7 +72,7 @@ function Scheduler() {
         const dadosAgendamento = {
             data_hora_inicio: `${dataSelecionada}T${horarioParaAgendar}:00`,
             servico: servicoSelecionado,
-            profissional: profissionalSelecionado,
+            barbeiro: profissionalSelecionado,
         };
 
         api.post('/api/agendamentos/', dadosAgendamento)
@@ -96,7 +99,8 @@ function Scheduler() {
                         <option value="">Selecione um Serviço</option>
                         {servicos.map(servico => (
                             <option key={servico.id} value={servico.id}>
-                                {servico.nome} ({servico.duracao.substring(0, 5)})
+                                {/* CORREÇÃO: Verificamos se 'servico.duracao' existe antes de usar o substring */}
+                                {servico.nome} {servico.duracao ? `(${servico.duracao.substring(0, 5)})` : ''}
                             </option>
                         ))}
                     </select>
@@ -104,7 +108,7 @@ function Scheduler() {
                         <option value="">Selecione um Profissional</option>
                         {profissionais.map(profissional => (
                             <option key={profissional.id} value={profissional.id}>
-                                {profissional.nome}
+                                {profissional.nome} 
                             </option>
                         ))}
                     </select>

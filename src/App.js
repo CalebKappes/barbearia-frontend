@@ -1,8 +1,15 @@
+// src/App.js
+
 import React from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import './App.css';
 
+// Importando os componentes de rota protegida
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import AdminRoute from './components/auth/AdminRoute';
+
+// Importando as páginas
 import Header from './components/Header';
 import LoginForm from './pages/LoginForm';
 import Scheduler from './pages/Scheduler';
@@ -10,50 +17,40 @@ import AdminDashboard from './pages/Admin/AdminDashboard';
 import RegistrationForm from './pages/RegistrationForm';
 import MyBookingsPage from './pages/MyBookingsPage';
 
-// Componente para proteger rotas que exigem login
-const PrivateRoute = ({ children }) => {
-  const { authToken } = useAuth();
-  return authToken ? children : <Navigate to="/login" />;
-};
-
-// Componente para proteger rotas que exigem ser admin
-const AdminRoute = ({ children }) => {
-    const { user, authToken } = useAuth();
-    if (!authToken) {
-        return <Navigate to="/login" />;
-    }
-    return user && user.is_staff ? children : <Navigate to="/" />;
-};
-
 function App() {
-  const location = useLocation();
-  const { authToken } = useAuth();
-  
-  // Não mostra o Header nas páginas de login e registo
-  const showHeader = location.pathname !== '/login' && location.pathname !== '/register';
+    const location = useLocation();
+    const { user } = useAuth(); // Usar 'user' é um pouco mais robusto que 'authToken'
 
-  return (
-    <div className="app-container">
-      {showHeader && <Header />}
-      <main className="main-content">
-        <Routes>
-          {/* Rotas Públicas */}
-          <Route path="/login" element={!authToken ? <LoginForm /> : <Navigate to="/" />} />
-          <Route path="/register" element={!authToken ? <RegistrationForm /> : <Navigate to="/" />} />
-          
-          {/* Rotas Privadas */}
-          <Route path="/" element={<PrivateRoute><Scheduler /></PrivateRoute>} />
-          <Route path="/meus-agendamentos" element={<PrivateRoute><MyBookingsPage /></PrivateRoute>} />
-          
-          {/* Rota Privada de Admin */}
-          <Route path="/admin/*" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+    // Não mostra o Header nas páginas de login e registo
+    const showHeader = location.pathname !== '/login' && location.pathname !== '/register';
 
-          {/* Rota de fallback */}
-          <Route path="*" element={<Navigate to={authToken ? "/" : "/login"} />} />
-        </Routes>
-      </main>
-    </div>
-  );
+    return (
+        <div className="app-container">
+            {showHeader && <Header />}
+            <main className="main-content">
+                <Routes>
+                    {/* Rotas Públicas: Login e Registro */}
+                    {/* Se o usuário já estiver logado, ele é redirecionado da página de login/registro */}
+                    <Route path="/login" element={!user ? <LoginForm /> : <Navigate to="/" />} />
+                    <Route path="/register" element={!user ? <RegistrationForm /> : <Navigate to="/" />} />
+
+                    {/* Rotas Privadas para Usuários Logados */}
+                    <Route element={<ProtectedRoute />}>
+                        <Route path="/" element={<Scheduler />} />
+                        <Route path="/meus-agendamentos" element={<MyBookingsPage />} />
+                    </Route>
+
+                    {/* Rota Privada para Administradores */}
+                    <Route element={<AdminRoute />}>
+                        <Route path="/admin/*" element={<AdminDashboard />} />
+                    </Route>
+
+                    {/* Rota de fallback: se não encontrar a rota, volta para a home ou login */}
+                    <Route path="*" element={<Navigate to="/" />} />
+                </Routes>
+            </main>
+        </div>
+    );
 }
 
 export default App;

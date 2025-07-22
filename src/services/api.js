@@ -2,7 +2,9 @@ import axios from 'axios';
 
 // Cria uma instância do axios que será usada em todo o aplicativo
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL, // A URL base da sua API
+  // CORREÇÃO: Colocamos a URL do back-end Django diretamente aqui.
+  // Isso garante que o front-end sempre se comunicará com o servidor correto.
+  baseURL: 'http://localhost:8000', 
   headers: {
     'Content-Type': 'application/json',
   },
