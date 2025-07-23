@@ -1,26 +1,33 @@
 import axios from 'axios';
 
-// Cria uma instância do axios que será usada em todo o aplicativo
+// Função inteligente que escolhe o URL correto da API
+const getApiUrl = () => {
+  // Quando o projeto está em produção na Vercel, process.env.NODE_ENV será 'production'
+  if (process.env.NODE_ENV === 'production') {
+    // Usa o URL público do teu back-end no Render
+    return 'https://barbearia-backend-ex7b.onrender.com';
+  }
+  
+  // Em qualquer outro caso (no teu computador), usa o localhost
+  return 'http://localhost:8000';
+};
+
+// Cria a instância do axios com o URL correto
 const api = axios.create({
-  // CORREÇÃO: Colocamos a URL do back-end Django diretamente aqui.
-  // Isso garante que o front-end sempre se comunicará com o servidor correto.
-  baseURL: 'http://localhost:8000', 
+  baseURL: getApiUrl(),
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Interceptor: Adiciona o token de autenticação em TODAS as requisições
-// que saírem da nossa aplicação para o backend.
+// Interceptor para adicionar o token de autenticação (isto já estava correto)
 api.interceptors.request.use(config => {
   const token = localStorage.getItem('authToken');
   if (token) {
-    // Se o token existir, adiciona o header de autorização
     config.headers.Authorization = `Bearer ${token}`;
   }
-  return config; // Retorna a configuração modificada para a chamada
+  return config;
 }, error => {
-  // Faz algo com o erro da requisição
   return Promise.reject(error);
 });
 
